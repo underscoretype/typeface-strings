@@ -1,6 +1,8 @@
 # TypeStrings
 
-A simple CLI tool for generating sample strings from a UFO file and dictionary input
+A simple CLI tool for generating sample strings from a UFO file and dictionary input.
+
+You can use this tool when creating a preview specimen of a typeface and require words from different sources and with specific widths, all the while cross-referencing available characters from your UFO file.
 
 ## Features
 
@@ -17,20 +19,21 @@ A simple CLI tool for generating sample strings from a UFO file and dictionary i
 
 `$ typestrings -f "myfont.ufo" -i "samplestrings.txt`
 
-*Returns all found matches and saves them to `myfont-samplestrings_output.txt`*
+*Returns all found matches and saves them to `myfont_samplestrings_output.txt`*
 
 **Retrieve x words of x length:**
 
 `$ typestrings -f "myfont.ufo" -i "samplestrings.txt" -m 5 -w 5000`
 
-*Return 5 matches that are 5000 units or just below and saves them to `myfont-samplestrings_output.txt`* 
+*Return 5 matches that are 5000 units or just below and saves them to `myfont_samplestrings_output.txt`* 
 
 ## Available parameters
 
 * `-f` `--font`: Path to UFO file
 * `-i` `--input`: Path to input word dictionary
-* `-w` `--width`: Maximum width of found words, in UPM of the provided font
-* `-m` `--max`: Maximum hits returned, when paired with `-w` in order of descending width
+* `-w` `--max-width`: Maximum width for found words, in UPM of the provided font
+* `-m` `--min-width`: Minimum width for found words, in UPM of the provided font
+* `-r` `--results`: Maximum results returned, when paired with `-w` in order of descending width
 * `-o` `--output`: Explicitly provide output file path
 * `-p` `--filter-punctuation`: Remove any punctuation marks from the input word dictionary
 * `-v` `--verbose`: Output verbose information of the generation process

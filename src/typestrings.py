@@ -1,6 +1,6 @@
-
+import argparse, operator, codecs, os, ntpath
+import regex
 from robofab.world import RFont
-import argparse, operator, codecs, os, ntpath, regex
 
 def remove_punctuation(text):
     return regex.sub(ur"\p{P}+", "", text)
@@ -25,12 +25,18 @@ def path_leaf(path):
 
 if __name__ == '__main__':
 
+    error_messages = {
+        'input': 'Error: At least text input and font file need to be supplied. Exiting.',
+        'min_max': 'Error: min-width can not be set to be greater than max-width. Exiting.'
+    }
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', help='Input file to extract strings from', required=True)
     parser.add_argument('-f', '--font', help='Font file', required=True)
     parser.add_argument('-o', '--output', help='Name for the output file')
-    parser.add_argument('-w', '--width', help='Desired word width', type=int)
-    parser.add_argument('-m', '--max', help='Maximum words to be retrieved', type=int)
+    parser.add_argument('-w', '--max-width', help='Desired word width', type=int)
+    parser.add_argument('-m', '--min-width', help='Minimum word width', type=int)
+    parser.add_argument('-r', '--results', help='Maximum words to be retrieved', type=int)
     parser.add_argument('-p', '--filter-punctuation', help='Remove any punctuation marks from the input', action='store_true')
     parser.add_argument('-v', '--verbose', help='Print verbose processing information', action='store_true')
 
@@ -40,7 +46,7 @@ if __name__ == '__main__':
     fontFile = args.font
 
     if input is None or fontFile is None:
-        exit("At least text input and font file need to be supplied. Exiting.")
+        exit(error_messages['input'])
 
     inputPath, inputExt = os.path.splitext(input)
     fontPath, fontExt = os.path.splitext(fontFile)
@@ -51,14 +57,23 @@ if __name__ == '__main__':
         output = path_leaf(fontPath) + "_" + path_leaf(inputPath) + "_output.txt"
 
     # parse a target width if one was supplied
-    width = None
-    if args.width is not None:
-        width = args.width
+    max_width = None
+    if args.max_width is not None:
+        max_width = args.max_width
+
+    min_width = None
+    if args.min_width is not None:
+        min_width = args.min_width
+
+    if max_width is not None and min_width is not None:
+        if min_width >= max_width:
+            exit(error_messages['min_max'])
+
 
     # parse max results if a limiter was supplied
-    max = None
-    if args.max is not None:
-        max = args.max
+    max_results = None
+    if args.results is not None:
+        max = args.results
 
     verbose = args.verbose
 
@@ -138,21 +153,30 @@ if __name__ == '__main__':
     results = []
 
     # remove all entries that are above width and limit to max, if supplied
-    if width is not None and width > 0:
+    if max_width is not None:
         for word, length in widthsAndWords:
-            if length <= width:
-                results.append(word)
+            if length <= max_width:
+                if min_width is None:
+                    results.append(word)
+                else:
+                    if length > min_width:
+                        results.append(word)
 
-            if len(results) >= max:
+            if max_results is not None and len(results) >= max_results:
                 break
 
-        maxWordWidth = wordWidths[inputText.index(results[0])]
-        minWordWidth = wordWidths[inputText.index(results[-1])]
+        print(len(results))
+        if results and len(results) > 0:
+            maxWordWidth = wordWidths[inputText.index(results[0])]
+            minWordWidth = wordWidths[inputText.index(results[-1])]
+        else:
+            maxWordWidth = 0
+            minWordWidth = 0
 
     else:
         results = inputText
-        if max is not None:
-            results= results[0:max]
+        if max_results is not None:
+            results= results[0:max_results]
 
     outputFile = codecs.open(output, "w", "utf8")
     outputFile.write("\n".join(results))
@@ -161,7 +185,7 @@ if __name__ == '__main__':
         print('Font %(font)s contained %(glyphs)s glyphs' % { 'font': fontFile, 'glyphs': fontNumGlyphs })
         print('Input %(input)s contained %(words)d words, of which %(valid)d were a match for the supplied font' %
               { 'input': input, 'words': inputNumWords, 'valid': inputNumValidWords })
-        if width is not None:
+        if max_width is not None:
             print('For supplied target width %(width)d the found results ranged from %(min)d to %(max)d' %
-                  { 'width': width, 'min': minWordWidth, 'max': maxWordWidth})
+                  { 'width': max_width, 'min': minWordWidth, 'max': maxWordWidth})
     print('%(matches)s matching words written to %(output)s. Done.' % { 'matches': len(results), 'output': output})
