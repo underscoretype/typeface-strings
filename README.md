@@ -13,6 +13,10 @@ You can use this tool when creating a preview specimen of a typeface and require
 
 ## Installation
 
+To use the binary, simply copy `dist/typestrings` to a folder in your console path or make the folder available.
+
+To use the python script, install via pip the packages `regex` and `robofab`.
+
 ## Usage
 
 **Minimal example:**
@@ -38,6 +42,14 @@ You can use this tool when creating a preview specimen of a typeface and require
 * `-p` `--filter-punctuation`: Remove any punctuation marks from the input word dictionary
 * `-v` `--verbose`: Output verbose information of the generation process
 
+## Example dictionaries
+Collected here a couple of places you can use for gathering comprehensive language samples to generate from. Note that increasing the input beyond 1 million words will cause significant delay in the script execution.
+
+* [Project Gutenberg](https://www.gutenberg.org/) has text files of literary works you can use (note the `-p` flag to strip punctuation
+* *Other suggestions welcome, just edit this documentation file and add ;)*
+
+You can also collect your own word samples with nice kerning pairs, plenty of language specific characters or your custom preference of languages in one file.
+
 ### License
 Released under [MIT license](LICENSE.txt) - You can do with this software what you want, but you are required to provide this copyright and license notices.
 
@@ -53,3 +65,5 @@ Copyright 2017 Johannes 'kontur' Neumeier
 * Option to filter numbers similar to `-p`
 * Option to cast the input to UPPERCASE, lowercase, Mixedcase words
 * Option to force inclusion or exclusion of a set of characters, either as string or separate file
+
+Contribution in form of feature requests, bug reports and pull requests most welcome. Let me know what's on your mind ;)
