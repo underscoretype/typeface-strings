@@ -1,0 +1,5 @@
+*.txt
+*.ufo
+*.glyphs
+*.spec
+/build
