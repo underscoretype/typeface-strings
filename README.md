@@ -40,6 +40,7 @@ To use the python script, install via pip the packages `regex` and `robofab`.
 * `-r` `--results`: Maximum results returned, when paired with `-w` in order of descending width
 * `-o` `--output`: Explicitly provide output file path
 * `-p` `--filter-punctuation`: Remove any punctuation marks from the input word dictionary
+* `-n` `--filter-numbers`: Remove any numbers from the input word dictionary
 * `-v` `--verbose`: Output verbose information of the generation process
 
 ## Example dictionaries
@@ -62,7 +63,6 @@ Copyright 2017 Johannes 'kontur' Neumeier
 * Support inputting .glyph files, output a file for each master
 * Create compound strings for widths that strings are not long enough when used with `-w`
 * Algorithm to pick words for maximal diverse character selection when used with `-m`
-* Option to filter numbers similar to `-p`
 * Option to cast the input to UPPERCASE, lowercase, Mixedcase words
 * Option to force inclusion or exclusion of a set of characters, either as string or separate file
 

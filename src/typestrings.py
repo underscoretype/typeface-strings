@@ -5,6 +5,9 @@ from robofab.world import RFont
 def remove_punctuation(text):
     return regex.sub(ur"\p{P}+", "", text)
 
+def remove_numbers(text):
+    return regex.sub(ur"\d+", "", text)
+
 def getGlyphNameFromUnicode(unicode, glyphs):
     try:
         return glyphs[unicode]
@@ -38,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--min-width', help='Minimum word width', type=int)
     parser.add_argument('-r', '--results', help='Maximum words to be retrieved', type=int)
     parser.add_argument('-p', '--filter-punctuation', help='Remove any punctuation marks from the input', action='store_true')
+    parser.add_argument('-n', '--filter-numbers', help='Remove any numbers from the input', action='store_true')
     parser.add_argument('-v', '--verbose', help='Print verbose processing information', action='store_true')
 
     args = parser.parse_args()
@@ -82,6 +86,9 @@ if __name__ == '__main__':
 
     if args.filter_punctuation:
         inputText = remove_punctuation(inputText)
+
+    if args.filter_numbers:
+        inputText = remove_numbers(inputText)
 
     inputText = inputText.split()
     inputNumWords = len(inputText)
