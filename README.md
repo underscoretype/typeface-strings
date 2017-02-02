@@ -44,7 +44,7 @@ Make sure the file is executable, chmod if necessary.
 ## Available parameters
 
 * `-f` `--font`: Path to UFO file
-* `-i` `--input`: Path to input word dictionary
+* `-i` `--input`: Path to input word dictionary (duplicates are automatically eliminated)
 * `-w` `--max-width`: Maximum width for found words, in UPM of the provided font
 * `-m` `--min-width`: Minimum width for found words, in UPM of the provided font
 * `-r` `--results`: Maximum results returned, when paired with `-w` in order of descending width

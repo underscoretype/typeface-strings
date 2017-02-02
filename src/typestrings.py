@@ -53,7 +53,7 @@ if __name__ == '__main__':
         'glyphs':   'Scanning UFO file      ',
         'words':    'Scanning for words     ',
         'widths':   'Calculating word widths',
-        'matches':  'Iterating matches      '
+        'matches':  'Finding matches        '
     }
 
     parser = argparse.ArgumentParser()
@@ -148,6 +148,15 @@ if __name__ == '__main__':
     errorWords = []
     errorChars = []
 
+    # Reduce any duplicates from the input text (if it was natural text, as opposed to a dictionary)
+    # From https://www.peterbe.com/plog/uniqifiers-benchmark
+    # Not order preserving
+    keys = {}
+    for e in inputText:
+        keys[e] = 1
+    inputText = keys.keys()
+
+    inputNumUnique = len(inputText)
 
     i = 0.0
     l = len(inputText)
@@ -257,8 +266,8 @@ if __name__ == '__main__':
 
     if verbose:
         print('Font %(font)s contained %(glyphs)s glyphs' % { 'font': fontFile, 'glyphs': fontNumGlyphs })
-        print('Input %(input)s contained %(words)d words, of which %(valid)d (%(unique)d unique) were a match for the supplied font' %
-              { 'input': input, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': len(results) })
+        print('Input %(input)s contained %(words)d words (%(unique)d unique), of which %(valid)d were a match for the supplied font' %
+              { 'input': input, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique })
         if len(errorChars) > 0:
             print('For the supplied input, the following characters were missing from the font:')
             print(repr([x.encode(sys.stdout.encoding) for x in errorChars]).decode('string-escape'))
