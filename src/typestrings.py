@@ -6,8 +6,10 @@ from robofab.world import RFont
 def remove_punctuation(text):
     return regex.sub(ur"\p{P}+", "", text)
 
+
 def remove_numbers(text):
     return regex.sub(ur"\d+", "", text)
+
 
 def getGlyphNameFromUnicode(unicode, glyphs):
     try:
@@ -27,11 +29,31 @@ def path_leaf(path):
     return tail or ntpath.basename(head)
 
 
+# progress bar, adapted from http://stackoverflow.com/a/27871113/999162
+def progress(count, total, suffix=''):
+    bar_len = 30
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = int(round(100.0 * count / float(total), 0))
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+
+    sys.stdout.write('[%s] %s%s ... %s\r' % (bar, percents, ' %', suffix))
+    sys.stdout.flush()  # As suggested by Rom Ruben
+
+
 if __name__ == '__main__':
 
     error_messages = {
         'input': 'Error: At least text input and font file need to be supplied. Exiting.',
         'min_max': 'Error: min-width can not be set to be greater than max-width. Exiting.'
+    }
+
+    progress_messages = {
+        'start':    'Reading in files       ',
+        'glyphs':   'Scanning UFO file      ',
+        'words':    'Scanning for words     ',
+        'widths':   'Calculating word widths',
+        'matches':  'Iterating matches      '
     }
 
     parser = argparse.ArgumentParser()
@@ -48,11 +70,17 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    i = 0
+    l = 0
+    s = 0
+
     input = args.input
     fontFile = args.font
 
     if input is None or fontFile is None:
         exit(error_messages['input'])
+
+    progress(0, 100, progress_messages['start'])
 
     inputPath, inputExt = os.path.splitext(input)
     fontPath, fontExt = os.path.splitext(fontFile)
@@ -79,7 +107,7 @@ if __name__ == '__main__':
     # parse max results if a limiter was supplied
     max_results = None
     if args.results is not None:
-        max = args.results
+        max_results = args.results
 
     verbose = args.verbose
 
@@ -104,7 +132,12 @@ if __name__ == '__main__':
 
     # generate a list of all unicodes defined in the font
     glyphs = {}
+    i = 0.0
+    l = len(font)
+    s = 20
     for glyph in font:
+        i = i + 1
+        progress(0 + (i / l * s), 100, progress_messages['glyphs'])
         if glyph.unicode is not None:
             glyphs[glyph.unicode] = glyph.name
 
@@ -115,8 +148,15 @@ if __name__ == '__main__':
     errorWords = []
     errorChars = []
 
+
+    i = 0.0
+    l = len(inputText)
+    s = 20
+
     unicodes = glyphs.keys()
     for word in inputText:
+        i = i + 1
+        progress(20 + (i / l * s), 100, progress_messages['words'])
         for letter in word:
             if len(force) > 0 and letter not in force:
                 if (word not in errorWords):
@@ -142,9 +182,16 @@ if __name__ == '__main__':
     if kerning is not None and font.groups is not None:
         kerning.explodeClasses(font.groups, font.groups)
 
+    i = 0.0
+    l = len(inputText)
+    s = 20
+
     # calculate the combined advance widths of all possible words
     wordWidths = []
     for word in inputText:
+        i = i + 1
+        progress(40 + (i / l * s), 100, progress_messages['widths'])
+
         lastLetter = None
         wordWidth = 0
         for letter in word:
@@ -169,9 +216,17 @@ if __name__ == '__main__':
 
     results = []
 
+    progress(50, 100)
+    i = 0.0
+    l = len(widthsAndWords)
+    s = 40
+
     # remove all entries that are above width and limit to max, if supplied
     if max_width is not None:
         for word, length in widthsAndWords:
+            i = i + 1
+            progress(60 + (i / l * s), 100, progress_messages['matches'])
+
             if length <= max_width:
                 if min_width is None and word not in results:
                     results.append(word)
@@ -196,6 +251,9 @@ if __name__ == '__main__':
 
     outputFile = codecs.open(output, "w", "utf8")
     outputFile.write("\n".join(results))
+
+
+    progress(100, 100)
 
     if verbose:
         print('Font %(font)s contained %(glyphs)s glyphs' % { 'font': fontFile, 'glyphs': fontNumGlyphs })

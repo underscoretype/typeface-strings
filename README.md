@@ -13,9 +13,13 @@ You can use this tool when creating a preview specimen of a typeface and require
 
 ## Installation
 
-To use the binary, simply copy `dist/typestrings` to a folder in your console path or make the folder available.
+To use the binary, simply copy `dist/typestrings` from this repository to a folder in your console path or make the folder available, for example grab the binary straight like this:
 
-To use the python script, install via pip the packages `regex` and `robofab`.
+`$ wget https://github.com/kontur/typeface-strings/blob/master/dist/typestrings`
+
+Make sure the file is executable, chmod if necessary.
+
+*To use the python script and make modifications, you need to install the packages `regex` and `robofab`, for example with pip.*
 
 ## Usage
 
@@ -68,6 +72,8 @@ Copyright 2017 Johannes 'kontur' Neumeier
 
 ### Planned features
 * Support inputting .glyph files, output a file for each master
+* Support inputting .otf files
+* Support inputting .ttf files
 * Create compound strings for widths that strings are not long enough when used with `-w`
 * Algorithm to pick words for maximal diverse character selection when used with `-m`
 * Option to cast the input to UPPERCASE, lowercase, Mixedcase words
