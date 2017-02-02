@@ -11,6 +11,8 @@ You can use this tool when creating a preview specimen of a typeface and require
 * Limit matched words by length and number of hits
 * Generates an output text file with found words that can be spelled with the UFO file's charset
 
+*Tested only on Mac OS X.* 
+
 ## Installation
 
 To use the binary, simply copy `dist/typestrings` from this repository to a folder in your console path or make the folder available, for example grab the binary straight like this:
@@ -49,6 +51,7 @@ Make sure the file is executable, chmod if necessary.
 * `-m` `--min-width`: Minimum width for found words, in UPM of the provided font
 * `-r` `--results`: Maximum results returned, when paired with `-w` in order of descending width
 * `-o` `--output`: Explicitly provide output file path
+* `-pb` `--pasteboard`: Copy the results to the pasteboard instead of a file. Simply `cmd + v` to paste the results (automatically limited to max 100 results)
 * `-p` `--filter-punctuation`: Remove any punctuation marks from the input word dictionary
 * `-n` `--filter-numbers`: Remove any numbers from the input word dictionary
 * `-e` `--input-force`: Force filtering to words that only contain all of the passed in characters

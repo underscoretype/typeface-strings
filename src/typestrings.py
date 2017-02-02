@@ -1,5 +1,6 @@
 import argparse, operator, codecs, os, ntpath, sys
 import regex
+import clipboard
 from robofab.world import RFont
 
 
@@ -67,6 +68,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--filter-numbers', help='Remove any numbers from the input', action='store_true')
     parser.add_argument('-v', '--verbose', help='Print verbose processing information', action='store_true')
     parser.add_argument('-e', '--input-force', help='Limit the matches to words entirely made up of only these characters', type=lambda s: unicode(s, 'utf8'))
+    parser.add_argument('-pb', '--pasteboard', help='Output results to the pasteboard, max 100 results', action='store_true')
 
     args = parser.parse_args()
 
@@ -123,6 +125,8 @@ if __name__ == '__main__':
     force = []
     if args.input_force:
         force = args.input_force
+
+    pasteboard = args.pasteboard
 
     inputText = inputText.split()
     inputNumWords = len(inputText)
@@ -258,8 +262,15 @@ if __name__ == '__main__':
         if max_results is not None:
             results= results[0:max_results]
 
-    outputFile = codecs.open(output, "w", "utf8")
-    outputFile.write("\n".join(results))
+
+    if pasteboard:
+        pb = ""
+        for r in list(results)[:100]:
+            pb += r.encode('utf-8') + "\n"
+        clipboard.copy(pb)
+    else:
+        outputFile = codecs.open(output, "w", "utf8")
+        outputFile.write("\n".join(results))
 
 
     progress(100, 100)
@@ -270,8 +281,16 @@ if __name__ == '__main__':
               { 'input': input, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique })
         if len(errorChars) > 0:
             print('For the supplied input, the following characters were missing from the font:')
-            print(repr([x.encode(sys.stdout.encoding) for x in errorChars]).decode('string-escape'))
+            # when executed as binary, there is no stdout
+            if sys.stderr.encoding is not None:
+                (repr([x.encode(sys.stdout.encoding) for x in errorChars]).decode('string-escape'))
+            else:
+                print(errorChars)
         if max_width is not None:
             print('For supplied target width %(width)d the found results ranged from %(min)d to %(max)d' %
-                  { 'width': max_width, 'min': minWordWidth, 'max': maxWordWidth})
-    print('%(matches)s matching words written to %(output)s. Done.' % { 'matches': len(results), 'output': output})
+                  { 'width': max_width, 'min': minWordWidth, 'max': maxWordWidth })
+
+    if pasteboard:
+        print('%(matches)s matching words have been copied to your pasteboard. Done.' % { 'matches': min(len(results), 100) })
+    else:
+        print('%(matches)s matching words written to %(output)s. Done.' % { 'matches': len(results), 'output': output })
