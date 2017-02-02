@@ -1,6 +1,7 @@
-import argparse, operator, codecs, os, ntpath
+import argparse, operator, codecs, os, ntpath, sys
 import regex
 from robofab.world import RFont
+
 
 def remove_punctuation(text):
     return regex.sub(ur"\p{P}+", "", text)
@@ -43,6 +44,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--filter-punctuation', help='Remove any punctuation marks from the input', action='store_true')
     parser.add_argument('-n', '--filter-numbers', help='Remove any numbers from the input', action='store_true')
     parser.add_argument('-v', '--verbose', help='Print verbose processing information', action='store_true')
+    parser.add_argument('-e', '--input-force', help='Limit the matches to words entirely made up of only these characters', type=lambda s: unicode(s, 'utf8'))
 
     args = parser.parse_args()
 
@@ -90,6 +92,10 @@ if __name__ == '__main__':
     if args.filter_numbers:
         inputText = remove_numbers(inputText)
 
+    force = []
+    if args.input_force:
+        force = args.input_force
+
     inputText = inputText.split()
     inputNumWords = len(inputText)
 
@@ -111,19 +117,23 @@ if __name__ == '__main__':
 
     unicodes = glyphs.keys()
     for word in inputText:
-        canWrite = True
         for letter in word:
+            if len(force) > 0 and letter not in force:
+                if (word not in errorWords):
+                    errorWords.append(word)
+
             try:
                 unicodes.index(ord(letter))
                 continue
             except ValueError:
-                errorWords.append(word)
+                if (word not in errorWords):
+                    errorWords.append(word)
                 errorChars.append(letter)
-                canWrite = False
 
-    # remove words that have characters not present in the font file
+    # remove words that have characters not present in the font file or passed in forced characters
     for error in set(errorWords):
-        inputText.remove(error)
+        # remove ALL occurances of error in inputText
+        inputText = [i for i in inputText if i != error]
 
     inputNumValidWords = len(inputText)
 
@@ -163,16 +173,15 @@ if __name__ == '__main__':
     if max_width is not None:
         for word, length in widthsAndWords:
             if length <= max_width:
-                if min_width is None:
+                if min_width is None and word not in results:
                     results.append(word)
                 else:
-                    if length > min_width:
+                    if length > min_width and word not in results:
                         results.append(word)
 
             if max_results is not None and len(results) >= max_results:
                 break
 
-        print(len(results))
         if results and len(results) > 0:
             maxWordWidth = wordWidths[inputText.index(results[0])]
             minWordWidth = wordWidths[inputText.index(results[-1])]
@@ -181,7 +190,7 @@ if __name__ == '__main__':
             minWordWidth = 0
 
     else:
-        results = inputText
+        results = set(inputText)
         if max_results is not None:
             results= results[0:max_results]
 
@@ -190,8 +199,11 @@ if __name__ == '__main__':
 
     if verbose:
         print('Font %(font)s contained %(glyphs)s glyphs' % { 'font': fontFile, 'glyphs': fontNumGlyphs })
-        print('Input %(input)s contained %(words)d words, of which %(valid)d were a match for the supplied font' %
-              { 'input': input, 'words': inputNumWords, 'valid': inputNumValidWords })
+        print('Input %(input)s contained %(words)d words, of which %(valid)d (%(unique)d unique) were a match for the supplied font' %
+              { 'input': input, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': len(results) })
+        if len(errorChars) > 0:
+            print('For the supplied input, the following characters were missing from the font:')
+            print(repr([x.encode(sys.stdout.encoding) for x in errorChars]).decode('string-escape'))
         if max_width is not None:
             print('For supplied target width %(width)d the found results ranged from %(min)d to %(max)d' %
                   { 'width': max_width, 'min': minWordWidth, 'max': maxWordWidth})
