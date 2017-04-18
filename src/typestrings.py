@@ -41,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose', help='Print verbose processing information', action='store_true')
     parser.add_argument('-f', '--input-force', help='Limit the matches to words entirely made up of only these characters', type=lambda s: unicode(s, 'utf8'))
     parser.add_argument('-s', '--word-sequence', help='Allow combinations of several words from the source to match a given width -w', action='store_true')
+    parser.add_argument('-c', '--letter-combinations', help='List of comma-separated n-grams that must be found in matched strings', type=str)
     parser.add_argument('-pb', '--pasteboard', help='Output results to the pasteboard, max 100 results', action='store_true')
 
     args = parser.parse_args()
@@ -76,6 +77,9 @@ if __name__ == '__main__':
     verbose = args.verbose
     pasteboard = args.pasteboard
     sequence = args.word_sequence
+    combinations = args.letter_combinations
+    if combinations is not None:
+        combinations = combinations.split(',')
 
     if sequence and not max_width:
         exit(error_messages['sequence_requires_width'])
@@ -170,12 +174,10 @@ if __name__ == '__main__':
         i = i + 20
         progress(40 + (i / l * s), 100, progress_messages['widths'])
 
-        # remove all entries that are above width and limit to max, if supplied
-        # results = []
-        # if max_width is not None:
-        #     results = text.getWordsWithinLimit(inputText, min_width, max_width, widthsAndWords, wordWidths, max_results)
-        # else:
         results = [index for index, val in wordWidths]
+
+        if combinations:
+            results = text.filterByCombinations(results, combinations)
         
         i = i + 1
         progress(60 + (i / l * s), 100, progress_messages['matches'])

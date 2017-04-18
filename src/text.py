@@ -13,6 +13,15 @@ def removeNumbers(text):
     return regex.sub(ur"\d+", "", text)
 
 
+def filterByCombinations(strings, combinations):
+    filtered = []
+    for string in strings:
+        for ngram in combinations:
+            if ngram in string:
+                filtered.append(string)
+    return filtered
+
+
 def getGlyphNameFromUnicode(unicode, glyphs):
     try:
         return glyphs[unicode]
@@ -35,9 +44,6 @@ def getWordWidths(text, kerning, font, glyphs, max_width):
 
 
 def getWordAndSequenceWidths(text, kerning, font, glyphs, max_width, min_width = 0):
-    if not max_width:
-        exit("No max width")
-
     widths = []
     strings = []
 
