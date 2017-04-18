@@ -12,6 +12,14 @@ def remove_numbers(text):
     return regex.sub(ur"\d+", "", text)
 
 
+def file_exists(file_path):
+    if not file_path:
+        return False
+    else:
+        # essentially UFO's are folders, but check file or folder to be sure
+        return os.path.isfile(file_path) or os.path.isdir(file_path)
+
+
 def getGlyphNameFromUnicode(unicode, glyphs):
     try:
         return glyphs[unicode]
@@ -21,7 +29,19 @@ def getGlyphNameFromUnicode(unicode, glyphs):
 
 
 def loadUfoFont(fontFile):
-    return RFont(fontFile)
+    if not file_exists(fontFile):
+        return False
+    else:
+        return RFont(fontFile)
+
+
+def loadTextFile(textFile):
+    if not file_exists(textFile):
+        return False
+    else:
+        inputFile = open(input, 'r')
+        inputText = inputFile.read().decode("utf8")
+        return inputText
 
 
 # get file name part from path, from http://stackoverflow.com/a/8384788/999162
@@ -45,8 +65,10 @@ def progress(count, total, suffix=''):
 if __name__ == '__main__':
 
     error_messages = {
-        'input': 'Error: At least text input and font file need to be supplied. Exiting.',
-        'min_max': 'Error: min-width can not be set to be greater than max-width. Exiting.'
+        'input': '\nError: At least text input and font file need to be supplied. Exiting.',
+        'min_max': '\nError: min-width can not be set to be greater than max-width. Exiting.',
+        'font_not_found': '\nError: The supplied font could not be loaded. Make sure you are supplying a path to a .ufo file, including the .ufo extension. Exiting.',
+        'textfile_not_found': '\nError: The supplied text file could not be loaded. Make sure you are supplying a path to a .txt file, including the .txt extension. Exiting.'
     }
 
     progress_messages = {
@@ -58,8 +80,8 @@ if __name__ == '__main__':
     }
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', help='Input file to extract strings from', required=True)
-    parser.add_argument('-f', '--font', help='Font file', required=True)
+    parser.add_argument('input', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
+    parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)
     parser.add_argument('-o', '--output', help='Name for the output file')
     parser.add_argument('-w', '--max-width', help='Desired word width', type=int)
     parser.add_argument('-m', '--min-width', help='Minimum word width', type=int)
@@ -113,8 +135,10 @@ if __name__ == '__main__':
 
     verbose = args.verbose
 
-    inputFile = open(input, 'r')
-    inputText = inputFile.read().decode("utf8")
+    # check and load the input text file
+    inputText = loadTextFile(input)    
+    if False == inputText:
+        exit(error_messages['textfile_not_found'] + ' Supplied: ' + input)
 
     if args.filter_punctuation:
         inputText = remove_punctuation(inputText)
@@ -131,8 +155,10 @@ if __name__ == '__main__':
     inputText = inputText.split()
     inputNumWords = len(inputText)
 
-    # open the font file with Robofab
+    # open the ufo font file with Robofab
     font = loadUfoFont(fontFile)
+    if False == font:
+        exit(error_messages['font_not_found'] + ' Supplied: ' + fontFile)
 
     # generate a list of all unicodes defined in the font
     glyphs = {}
