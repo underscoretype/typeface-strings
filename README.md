@@ -43,7 +43,7 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 
 **Retrieve all words that have any of the passed in, comma-separated, ngrams:**
 
-`$ typestrings myfont.ufo samplesstrings.txt -c an,on,alad
+`$ typestrings myfont.ufo samplesstrings.txt -c an,on,alad`
 
 *Matches all words that have either the letter combination "an", "on" or "alad" in them.*
 
