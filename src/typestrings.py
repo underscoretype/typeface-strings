@@ -1,8 +1,9 @@
 import argparse, operator, codecs, os, ntpath, sys
 import regex
 import clipboard
-from robofab.world import RFont
 
+import filehandler
+from messages import error_messages, progress_messages
 
 def remove_punctuation(text):
     return regex.sub(ur"\p{P}+", "", text)
@@ -12,36 +13,12 @@ def remove_numbers(text):
     return regex.sub(ur"\d+", "", text)
 
 
-def file_exists(file_path):
-    if not file_path:
-        return False
-    else:
-        # essentially UFO's are folders, but check file or folder to be sure
-        return os.path.isfile(file_path) or os.path.isdir(file_path)
-
-
 def getGlyphNameFromUnicode(unicode, glyphs):
     try:
         return glyphs[unicode]
     except KeyError:
         print("getGlyphNameFromUnicode KeyError for", unicode)
         return None
-
-
-def loadUfoFont(fontFile):
-    if not file_exists(fontFile):
-        return False
-    else:
-        return RFont(fontFile)
-
-
-def loadTextFile(textFile):
-    if not file_exists(textFile):
-        return False
-    else:
-        inputFile = open(input, 'r')
-        inputText = inputFile.read().decode("utf8")
-        return inputText
 
 
 # get file name part from path, from http://stackoverflow.com/a/8384788/999162
@@ -63,21 +40,6 @@ def progress(count, total, suffix=''):
 
 
 if __name__ == '__main__':
-
-    error_messages = {
-        'input': '\nError: At least text input and font file need to be supplied. Exiting.',
-        'min_max': '\nError: min-width can not be set to be greater than max-width. Exiting.',
-        'font_not_found': '\nError: The supplied font could not be loaded. Make sure you are supplying a path to a .ufo file, including the .ufo extension. Exiting.',
-        'textfile_not_found': '\nError: The supplied text file could not be loaded. Make sure you are supplying a path to a .txt file, including the .txt extension. Exiting.'
-    }
-
-    progress_messages = {
-        'start':    'Reading in files       ',
-        'glyphs':   'Scanning UFO file      ',
-        'words':    'Scanning for words     ',
-        'widths':   'Calculating word widths',
-        'matches':  'Finding matches        '
-    }
 
     parser = argparse.ArgumentParser()
     parser.add_argument('input', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
@@ -115,13 +77,8 @@ if __name__ == '__main__':
         output = path_leaf(fontPath) + "_" + path_leaf(inputPath) + "_output.txt"
 
     # parse a target width if one was supplied
-    max_width = None
-    if args.max_width is not None:
-        max_width = args.max_width
-
-    min_width = None
-    if args.min_width is not None:
-        min_width = args.min_width
+    max_width = args.max_width
+    min_width = args.min_width
 
     if max_width is not None and min_width is not None:
         if min_width >= max_width:
@@ -129,17 +86,13 @@ if __name__ == '__main__':
 
 
     # parse max results if a limiter was supplied
-    max_results = None
-    if args.results is not None:
-        max_results = args.results
-
+    max_results = args.results
     verbose = args.verbose
+    pasteboard = args.pasteboard
 
-    # check and load the input text file
-    inputText = loadTextFile(input)    
-    if False == inputText:
-        exit(error_messages['textfile_not_found'] + ' Supplied: ' + input)
-
+    # check and load the input text file, or exit on failure
+    inputText = filehandler.loadTextFile(input)    
+    
     if args.filter_punctuation:
         inputText = remove_punctuation(inputText)
 
@@ -150,16 +103,12 @@ if __name__ == '__main__':
     if args.input_force:
         force = args.input_force
 
-    pasteboard = args.pasteboard
-
     inputText = inputText.split()
     inputNumWords = len(inputText)
 
-    # open the ufo font file with Robofab
-    font = loadUfoFont(fontFile)
-    if False == font:
-        exit(error_messages['font_not_found'] + ' Supplied: ' + fontFile)
-
+    # open the ufo font file with Robofab, or exit on failure
+    font = filehandler.loadUfoFont(fontFile)
+    
     # generate a list of all unicodes defined in the font
     glyphs = {}
     i = 0.0

@@ -2,4 +2,5 @@
 *.ufo
 *.glyphs
 *.spec
+/src/*.pyc
 /build
