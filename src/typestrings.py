@@ -106,7 +106,7 @@ if __name__ == '__main__':
     # generate a list of all unicodes defined in the font
     glyphs = {}
     i = 0.0
-    l = len(font)
+    l = len(font) + 1
     s = 20
     for glyph in font:
         i = i + 1
@@ -130,7 +130,7 @@ if __name__ == '__main__':
 
 
     i = 0.0
-    l = len(inputText)
+    l = len(inputText) + 1
     s = 20
 
     unicodes = glyphs.keys()
@@ -163,7 +163,7 @@ if __name__ == '__main__':
         kerning.explodeClasses(font.groups, font.groups)
 
     i = 0.0
-    l = len(inputText)
+    l = len(inputText) + 1
     s = 20
 
     results = []

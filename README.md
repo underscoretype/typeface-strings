@@ -19,7 +19,9 @@ To use the binary, simply copy `dist/typestrings` from this repository to a fold
 
 `$ wget https://github.com/kontur/typeface-strings/blob/master/dist/typestrings`
 
-Make sure the file is executable, chmod if necessary.
+Make sure the file is executable, chmod to executable for your unix user if necessary.
+
+*Unfortunately no installer or update function is available. If you are updating the script, remove any old binary or copy of the python script and follow the above installation instructions. To find the location where a previous version of the binary is located, you can use the `$ which typestrings`.*
 
 *To use the python script and make modifications, you need to install the packages `regex` and `robofab`, for example with pip.*
 
@@ -27,26 +29,40 @@ Make sure the file is executable, chmod if necessary.
 
 **Minimal example:**
 
-`$ typestrings -f "myfont.ufo" -i "samplestrings.txt`
+`$ typestrings myfont.ufo samplestrings.txt`
 
-*Returns all found matches and saves them to `myfont_samplestrings_output.txt`*
+*The minimal required input, in this order, is a path to ufo file, and a path to a text file containing sample words.
+
+*This command returns all found matches and saves them to `myfont_samplestrings_output.txt`. A match here means any word found in the sample words that can be written with the glyphs found in the ufo file. For example, if you have a font that has characters to support only ascii english, and you have a sample text with a spanish dictionary, only those words will be matched that can be written with the ascii charset (glyphs found in the ufo file)*
 
 **Retrieve x words of x length:**
 
-`$ typestrings -f "myfont.ufo" -i "samplestrings.txt" -m 5 -w 5000`
+`$ typestrings myfont.ufo samplestrings.txt -m 5 -w 5000`
 
 *Return 5 matches that are 5000 units or just below and saves them to `myfont_samplestrings_output.txt`*
+
+**Retrieve all words that have any of the passed in, comma-separated, ngrams:**
+
+`$ typestrings myfont.ufo samplesstrings.txt -c an,on,alad
+
+*Matches all words that have either the letter combination "an", "on" or "alad" in them.*
+
+**Retrieve all words or word combinations that are less than 5000 units wide**
+
+`$ typestring myfont.ufo samplesstrings.txt -s -w 5000`
+
+*The -s flag (only available in conjunction with at least a -w parameter) will allow you to also match word combination or partial sentences. Note that this works best if your text sample is a natural text, not a dictionary*
  
 **Retrieve all words that made up of the passed in characters**
   
-`$ typestrings -f "myfont.ufo" -i "samplestrings.txt" -e "aäknoöscíBC`
+`$ typestrings myfont.ufo samplestrings.txt -e "aäknoöscíBC`
 
-*Returns words like `käännös` or `Bacon` that were made up entirely of crossreferenced characters (assuming they were in input as well as defined in the font)*
+*Returns words like `käännös` or `Bacon` that were made up entirely of crossreferenced characters (assuming they were in input as well as defined in the font). Note that this is quite a restrictive filter and can often result in zero matches if too many characters are passed in or the sample text is small.*
 
 ## Available parameters
 
-* `-f` `--font`: Path to UFO file
-* `-i` `--input`: Path to input word dictionary (duplicates are automatically eliminated)
+* `first parameter`: Path to UFO file
+* `second parameter`: Path to input word dictionary (duplicates are automatically eliminated)
 * `-w` `--max-width`: Maximum width for found words, in UPM of the provided font
 * `-m` `--min-width`: Minimum width for found words, in UPM of the provided font
 * `-r` `--results`: Maximum results returned, when paired with `-w` in order of descending width
@@ -54,7 +70,9 @@ Make sure the file is executable, chmod if necessary.
 * `-pb` `--pasteboard`: Copy the results to the pasteboard instead of a file. Simply `cmd + v` to paste the results (automatically limited to max 100 results)
 * `-p` `--filter-punctuation`: Remove any punctuation marks from the input word dictionary
 * `-n` `--filter-numbers`: Remove any numbers from the input word dictionary
-* `-e` `--input-force`: Force filtering to words that only contain all of the passed in characters
+* `-f` `--input-force`: Force filtering to words that only contain all of the passed in characters
+* `-s` `--word-sequence`: Allow combinations of several words from the source to match a given width -w'
+* `-c` `--letter-combinations`: List of comma-separated n-grams that must be found in matched strings
 * `-v` `--verbose`: Output verbose information of the generation process
 
 ## Example dictionaries
@@ -77,9 +95,7 @@ Copyright 2017 Johannes 'kontur' Neumeier
 * Support inputting .glyph files, output a file for each master
 * Support inputting .otf files
 * Support inputting .ttf files
-* Create compound strings for widths that strings are not long enough when used with `-w`
 * Algorithm to pick words for maximal diverse character selection when used with `-m`
 * Option to cast the input to UPPERCASE, lowercase, Mixedcase words
-* (Partially done) Option to force inclusion or exclusion of a set of characters, either as string or separate file
 
 Contribution in form of feature requests, bug reports and pull requests most welcome. Let me know what's on your mind ;)
