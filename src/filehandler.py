@@ -1,7 +1,12 @@
+# built-in modules
 import os
+
+# dependency modules
 from robofab.world import RFont
 
+# local modules
 from messages import error_messages
+
 
 def loadUfoFont(fontFile):
     if not file_exists(fontFile):

@@ -1,24 +1,12 @@
+# built-in modules
 import argparse, operator, codecs, os, ntpath, sys
-import regex
+
+# dependency modules
 import clipboard
 
-import filehandler
+# local modules
+import filehandler, text
 from messages import error_messages, progress_messages
-
-def remove_punctuation(text):
-    return regex.sub(ur"\p{P}+", "", text)
-
-
-def remove_numbers(text):
-    return regex.sub(ur"\d+", "", text)
-
-
-def getGlyphNameFromUnicode(unicode, glyphs):
-    try:
-        return glyphs[unicode]
-    except KeyError:
-        print("getGlyphNameFromUnicode KeyError for", unicode)
-        return None
 
 
 # get file name part from path, from http://stackoverflow.com/a/8384788/999162
@@ -94,10 +82,10 @@ if __name__ == '__main__':
     inputText = filehandler.loadTextFile(input)    
     
     if args.filter_punctuation:
-        inputText = remove_punctuation(inputText)
+        inputText = text.removePunctuation(inputText)
 
     if args.filter_numbers:
-        inputText = remove_numbers(inputText)
+        inputText = text.removeNumbers(inputText)
 
     force = []
     if args.input_force:
@@ -175,26 +163,9 @@ if __name__ == '__main__':
     s = 20
 
     # calculate the combined advance widths of all possible words
-    wordWidths = []
-    for word in inputText:
-        i = i + 1
-        progress(40 + (i / l * s), 100, progress_messages['widths'])
-
-        lastLetter = None
-        wordWidth = 0
-        for letter in word:
-            try:
-                kernValue = kerning[(letter, lastLetter)]
-                glyphName = getGlyphNameFromUnicode(ord(letter), glyphs)
-                wordWidth += font[glyphName].width
-                if kernValue is not None:
-                    wordWidth += kernValue
-                lastLetter = letter
-            except KeyError:
-                print("KeyError", word, glyphName, letter, ord(letter))
-                continue
-
-        wordWidths.append(wordWidth)
+    wordWidths = text.getWordWidths(inputText, kerning, font, glyphs)
+    i = i + 20
+    progress(40 + (i / l * s), 100, progress_messages['widths'])
 
     # combine words as unique keys with their lengths
     combined = dict(zip(inputText, wordWidths))
@@ -202,40 +173,23 @@ if __name__ == '__main__':
     # sort by length, with words as dict values
     widthsAndWords = sorted(combined.items(), key=operator.itemgetter(1), reverse=True)
 
-    results = []
-
     progress(50, 100)
     i = 0.0
     l = len(widthsAndWords)
     s = 40
 
+
     # remove all entries that are above width and limit to max, if supplied
+    results = []
     if max_width is not None:
-        for word, length in widthsAndWords:
-            i = i + 1
-            progress(60 + (i / l * s), 100, progress_messages['matches'])
-
-            if length <= max_width:
-                if min_width is None and word not in results:
-                    results.append(word)
-                else:
-                    if length > min_width and word not in results:
-                        results.append(word)
-
-            if max_results is not None and len(results) >= max_results:
-                break
-
-        if results and len(results) > 0:
-            maxWordWidth = wordWidths[inputText.index(results[0])]
-            minWordWidth = wordWidths[inputText.index(results[-1])]
-        else:
-            maxWordWidth = 0
-            minWordWidth = 0
-
+        results = text.getWordsWithinLimit(inputText, min_width, max_width, widthsAndWords, wordWidths, max_results)
     else:
         results = set(inputText)
         if max_results is not None:
-            results= results[0:max_results]
+            results = results[0:max_results]
+
+    i = i + 1
+    progress(60 + (i / l * s), 100, progress_messages['matches'])
 
 
     if pasteboard:
