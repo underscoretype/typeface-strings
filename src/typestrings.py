@@ -33,13 +33,14 @@ if __name__ == '__main__':
     parser.add_argument('input', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
     parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)
     parser.add_argument('-o', '--output', help='Name for the output file')
-    parser.add_argument('-w', '--max-width', help='Desired word width', type=int)
+    parser.add_argument('-w', '--max-width', help='Desired maximumg word width', type=int)
     parser.add_argument('-m', '--min-width', help='Minimum word width', type=int)
-    parser.add_argument('-r', '--results', help='Maximum words to be retrieved', type=int)
+    parser.add_argument('-r', '--results', help='Maximum number of result to be retrieved', type=int)
     parser.add_argument('-p', '--filter-punctuation', help='Remove any punctuation marks from the input', action='store_true')
     parser.add_argument('-n', '--filter-numbers', help='Remove any numbers from the input', action='store_true')
     parser.add_argument('-v', '--verbose', help='Print verbose processing information', action='store_true')
-    parser.add_argument('-e', '--input-force', help='Limit the matches to words entirely made up of only these characters', type=lambda s: unicode(s, 'utf8'))
+    parser.add_argument('-f', '--input-force', help='Limit the matches to words entirely made up of only these characters', type=lambda s: unicode(s, 'utf8'))
+    parser.add_argument('-s', '--word-sequence', help='Allow combinations of several words from the source to match a given width -w', action='store_true')
     parser.add_argument('-pb', '--pasteboard', help='Output results to the pasteboard, max 100 results', action='store_true')
 
     args = parser.parse_args()
@@ -67,16 +68,17 @@ if __name__ == '__main__':
     # parse a target width if one was supplied
     max_width = args.max_width
     min_width = args.min_width
-
     if max_width is not None and min_width is not None:
         if min_width >= max_width:
             exit(error_messages['min_max'])
 
-
-    # parse max results if a limiter was supplied
     max_results = args.results
     verbose = args.verbose
     pasteboard = args.pasteboard
+    sequence = args.word_sequence
+
+    if sequence and not max_width:
+        exit(error_messages['sequence_requires_width'])
 
     # check and load the input text file, or exit on failure
     inputText = filehandler.loadTextFile(input)    
@@ -115,15 +117,13 @@ if __name__ == '__main__':
     errorWords = []
     errorChars = []
 
-    # Reduce any duplicates from the input text (if it was natural text, as opposed to a dictionary)
-    # From https://www.peterbe.com/plog/uniqifiers-benchmark
-    # Not order preserving
-    keys = {}
-    for e in inputText:
-        keys[e] = 1
-    inputText = keys.keys()
+    # if we are not going to check for the lengths of word sequences we can
+    # savely remove all duplicates (which also is not order preserving)
+    if not sequence:
+        inputText = text.removeDuplicates(inputText)
 
     inputNumUnique = len(inputText)
+
 
     i = 0.0
     l = len(inputText)
@@ -162,34 +162,31 @@ if __name__ == '__main__':
     l = len(inputText)
     s = 20
 
-    # calculate the combined advance widths of all possible words
-    wordWidths = text.getWordWidths(inputText, kerning, font, glyphs)
-    i = i + 20
-    progress(40 + (i / l * s), 100, progress_messages['widths'])
-
-    # combine words as unique keys with their lengths
-    combined = dict(zip(inputText, wordWidths))
-
-    # sort by length, with words as dict values
-    widthsAndWords = sorted(combined.items(), key=operator.itemgetter(1), reverse=True)
-
-    progress(50, 100)
-    i = 0.0
-    l = len(widthsAndWords)
-    s = 40
-
-
-    # remove all entries that are above width and limit to max, if supplied
     results = []
-    if max_width is not None:
-        results = text.getWordsWithinLimit(inputText, min_width, max_width, widthsAndWords, wordWidths, max_results)
-    else:
-        results = set(inputText)
-        if max_results is not None:
-            results = results[0:max_results]
 
-    i = i + 1
-    progress(60 + (i / l * s), 100, progress_messages['matches'])
+    # calculate the combined advance widths of all possible separate words (no word sequences)
+    if not sequence:
+        wordWidths = text.getWordWidths(inputText, kerning, font, glyphs, max_width)
+        i = i + 20
+        progress(40 + (i / l * s), 100, progress_messages['widths'])
+
+        # remove all entries that are above width and limit to max, if supplied
+        # results = []
+        # if max_width is not None:
+        #     results = text.getWordsWithinLimit(inputText, min_width, max_width, widthsAndWords, wordWidths, max_results)
+        # else:
+        results = [index for index, val in wordWidths]
+        
+        i = i + 1
+        progress(60 + (i / l * s), 100, progress_messages['matches'])
+
+    else:
+        # also consider words sequences for width calculations
+        wordWidths = text.getWordAndSequenceWidths(inputText, kerning, font, glyphs, max_width, min_width)
+        results = [index for index, val in wordWidths]
+
+    if max_results is not None:
+        results = results[0:max_results]
 
 
     if pasteboard:

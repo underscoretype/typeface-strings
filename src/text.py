@@ -1,3 +1,6 @@
+# built-in modules
+import operator
+
 # dependency modules
 import regex
 
@@ -18,52 +21,87 @@ def getGlyphNameFromUnicode(unicode, glyphs):
         return None
 
 
-def getWordWidths(text, kerning, font, glyphs):
-    wordWidths = []
+def getWordWidths(text, kerning, font, glyphs, max_width):
+    widths = []
+    strings = []
+
     for word in text:
+        width = getWordWidth(word, kerning, font, glyphs)
+        if max_width is None or (max_width is not None and width < max_width):
+            widths.append(width)
+            strings.append(word)
 
-        lastLetter = None
-        wordWidth = 0
-
-        for letter in word:
-            try:
-                kernValue = kerning[(letter, lastLetter)]
-                glyphName = getGlyphNameFromUnicode(ord(letter), glyphs)
-                wordWidth += font[glyphName].width
-                
-                if kernValue is not None:
-                    wordWidth += kernValue
-                
-                lastLetter = letter
-
-            except KeyError:
-                print("KeyError", word, glyphName, letter, ord(letter))
-                continue
-
-        wordWidths.append(wordWidth)
-
-    return wordWidths
+    return reversed(sorted(zip(strings, widths), key=lambda x: x[1]))
 
 
-def getWordsWithinLimit(text, min_width, max_width, widthsAndWords, wordWidths, max_results):
-    results = []
-    for word, length in widthsAndWords:
+def getWordAndSequenceWidths(text, kerning, font, glyphs, max_width, min_width = 0):
+    if not max_width:
+        exit("No max width")
 
-        if length <= max_width:
-            if min_width is None and word not in results:
-                results.append(word)
+    widths = []
+    strings = []
+
+    # for every word, check its width, and if it's below max_width, also it plus 
+    # consequtive words, until it is over width
+    for index, word in enumerate(text):
+        string = ""
+        stringWidth = 0;
+        wordOffset = 0;
+
+        while stringWidth < max_width:
+
+            # make sure any consequtive word is actually not beyond the bounds of
+            # the text array of words
+            wordIndex = index + wordOffset
+            if len(text) > wordIndex:
+                string += text[index + wordOffset]
+                stringWidth = getWordWidth(string, kerning, font, glyphs)
+
+                # if the string is not beyond the max_width, iterate further
+                if stringWidth < max_width and stringWidth > min_width:
+                    wordOffset += 1
+                    widths.append(stringWidth)
+                    strings.append(string)
+
+                    # finally, add a space, so added next words have a space inbetween
+                    # which also gets added to their computed width
+                    string += " "
             else:
-                if length > min_width and word not in results:
-                    results.append(word)
+                # if the word index is out of bound, break from the while loop
+                stringWidth = max_width
+    
+    return reversed(sorted(zip(strings, widths), key=lambda x: x[1]))
 
-        if max_results is not None and len(results) >= max_results:
-            break
 
-    if results and len(results) > 0:
-        maxWordWidth = wordWidths[text.index(results[0])]
-        minWordWidth = wordWidths[text.index(results[-1])]
-    else:
-        maxWordWidth = 0
-        minWordWidth = 0
+def getWordWidth(word, kerning, font, glyphs):
+    lastLetter = None
+    wordWidth = 0
 
-    return results
+    for letter in word:
+        try:
+            kernValue = kerning[(letter, lastLetter)]
+            glyphName = getGlyphNameFromUnicode(ord(letter), glyphs)
+            wordWidth += font[glyphName].width
+            
+            if kernValue is not None:
+                wordWidth += kernValue
+            
+            lastLetter = letter
+
+        except KeyError:
+            print("KeyError", word, glyphName, letter, ord(letter))
+            continue
+
+    return wordWidth
+
+
+# Reduce any duplicates from the input text (if it was natural text, as opposed to a dictionary)
+# From https://www.peterbe.com/plog/uniqifiers-benchmark
+# Not order preserving
+def removeDuplicates(text):
+    keys = {}
+    for e in text:
+        keys[e] = 1
+    text = keys.keys()
+    return text
+
