@@ -30,7 +30,7 @@ def progress(count, total, suffix=''):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('input', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
+    parser.add_argument('sample', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
     parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)
     parser.add_argument('-o', '--output', help='Name for the output file')
     parser.add_argument('-w', '--max-width', help='Desired maximumg word width', type=int)
@@ -50,15 +50,15 @@ if __name__ == '__main__':
     l = 0
     s = 0
 
-    input = args.input
+    sample = args.sample
     fontFile = args.font
 
-    if input is None or fontFile is None:
+    if sample is None or fontFile is None:
         exit(error_messages['input'])
 
     progress(0, 100, progress_messages['start'])
 
-    inputPath, inputExt = os.path.splitext(input)
+    inputPath, inputExt = os.path.splitext(sample)
     fontPath, fontExt = os.path.splitext(fontFile)
 
     # if no output file is provided, roll a default
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         exit(error_messages['sequence_requires_width'])
 
     # check and load the input text file, or exit on failure
-    inputText = filehandler.loadTextFile(input)    
+    inputText = filehandler.loadTextFile(sample)    
     
     if args.filter_punctuation:
         inputText = text.removePunctuation(inputText)
