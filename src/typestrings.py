@@ -30,8 +30,8 @@ def progress(count, total, suffix=''):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('sample', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
     parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)
+    parser.add_argument('sample', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
     parser.add_argument('-o', '--output', help='Name for the output file')
     parser.add_argument('-w', '--max-width', help='Desired maximumg word width', type=int)
     parser.add_argument('-m', '--min-width', help='Minimum word width', type=int)
