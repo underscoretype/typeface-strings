@@ -1,1 +1,1 @@
-pyinstaller -F "src/typestrings.py"
+pyinstaller -F "src/typestrings.py" -p "venv/lib"
