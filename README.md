@@ -59,6 +59,10 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 
 *Returns words like `käännös` or `Bacon` that were made up entirely of crossreferenced characters (assuming they were in input as well as defined in the font). Note that this is quite a restrictive filter and can often result in zero matches if too many characters are passed in or the sample text is small.*
 
+`$ typestring myfont.ufo samplestrings.txt -g 500 -w 15000 -r 10
+
+*Uses the input text to generate a new text of 500 characters based on Markov chains (somewhat sensible and looking **like** the input language, but not grammatically correct), then searches the 10 best results for target width of 15000 units*
+
 ## Available parameters
 
 * `first parameter`: Path to UFO file
@@ -73,6 +77,7 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 * `-f` `--input-force`: Force filtering to words that only contain all of the passed in characters
 * `-s` `--word-sequence`: Allow combinations of several words from the source to match a given width -w'
 * `-c` `--letter-combinations`: List of comma-separated n-grams that must be found in matched strings
+* `-g` `--generate`: Use the input text to generate a randomized Markov chain based text from which to extract words (and word combinations), provide number of letters to generate
 * `-v` `--verbose`: Output verbose information of the generation process
 
 ## Example dictionaries
