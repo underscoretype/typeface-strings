@@ -1,5 +1,5 @@
 # built-in modules
-import argparse, operator, codecs, os, ntpath, sys
+import argparse, operator, codecs, os, ntpath, sys, logging
 
 # dependency modules
 import clipboard
@@ -30,6 +30,8 @@ def progress(count, total, suffix=''):
 
 if __name__ == '__main__':
 
+    version = "0.1.0"
+
     parser = argparse.ArgumentParser()
     parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)
     parser.add_argument('sample', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
@@ -47,6 +49,9 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--generate', help='Use the input text to generate a randomized Markov chain based text from which to extract words (combinations), provide number of letters to generate', type=int)
 
     args = parser.parse_args()
+
+    if args.verbose:
+        print("Type Strings script version: " + version)
 
     i = 0
     l = 0
@@ -89,10 +94,16 @@ if __name__ == '__main__':
     # check and load the input text file, or exit on failure
     inputText = filehandler.loadTextFile(sample)    
     
-
+    # generate a markov chain based text from the input
     if args.generate and args.generate > 0:
+        # disable error message about on-the-fly database
+        logging.disable(logging.WARNING)
         mc = MarkovChain("./markov-chain-database")
         mc.generateDatabase(inputText)
+
+        # reinstate logging
+        logging.disable(logging.NOTSET)
+
         generatedText = ""
         while len(generatedText) < args.generate:
             generatedText = generatedText + mc.generateString()
@@ -201,6 +212,9 @@ if __name__ == '__main__':
     if max_results is not None:
         results = results[0:max_results]
 
+    if results:
+        minWordWidth = text.getWordWidth(results[-1], kerning, font, glyphs)
+        maxWordWidth = text.getWordWidth(results[0], kerning, font, glyphs)
 
     if pasteboard:
         pb = ""
@@ -216,8 +230,8 @@ if __name__ == '__main__':
 
     if verbose:
         print('Font %(font)s contained %(glyphs)s glyphs' % { 'font': fontFile, 'glyphs': fontNumGlyphs })
-        print('Input %(input)s contained %(words)d words (%(unique)d unique), of which %(valid)d were a match for the supplied font' %
-              { 'input': input, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique })
+        print('Input %(input)s contained %(words)d words (%(unique)d unique), of which %(valid)d were a match for the supplied font %(font)s' %
+              { 'input': args.sample, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique, 'font': args.font })
         if len(errorChars) > 0:
             print('For the supplied input, the following characters were missing from the font:')
             # when executed as binary, there is no stdout
@@ -226,7 +240,7 @@ if __name__ == '__main__':
             else:
                 print(errorChars)
         if max_width is not None:
-            print('For supplied target width %(width)d the found results ranged from %(min)d to %(max)d' %
+            print('For the supplied target width %(width)d the found results ranged in width from %(min)d to %(max)d' %
                   { 'width': max_width, 'min': minWordWidth, 'max': maxWordWidth })
 
     if pasteboard:
