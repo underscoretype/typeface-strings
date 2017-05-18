@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--word-sequence', help='Allow combinations of several words from the source to match a given width -w', action='store_true')
     parser.add_argument('-c', '--letter-combinations', help='List of comma-separated n-grams that must be found in matched strings', type=str)
     parser.add_argument('-pb', '--pasteboard', help='Output results to the pasteboard, max 100 results', action='store_true')
-    parser.add_argument('-g', '--generate', help='Use the input text to generate a randomized Markov chain based text from which to extract words (combinations), provide number of letters to generate', type=int)
+    parser.add_argument('-g', '--generate', help='Use the input text to generate a randomized Markov chain based text from which to extract words (and word combinations), provide number of letters to generate. Especially useful in conjunction with -s. Ideally used with a sample text that contains punctuation, so sentences can be extracted for analysis', type=int)
 
     args = parser.parse_args()
 
@@ -106,6 +106,8 @@ if __name__ == '__main__':
 
         generatedText = ""
         while len(generatedText) < args.generate:
+            if generatedText is not "":
+                generatedText = generatedText + " "
             generatedText = generatedText + mc.generateString()
         inputText = generatedText
 
