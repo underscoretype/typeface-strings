@@ -1,6 +1,8 @@
 *.txt
+!requirements.txt
 *.ufo
 *.glyphs
 *.spec
 /src/*.pyc
 /build
+/venv

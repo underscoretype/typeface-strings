@@ -88,6 +88,15 @@ Released under [MIT license](LICENSE.txt) - You can do with this software what y
 
 Copyright 2017 Johannes 'kontur' Neumeier
 
+## Contributing and setting up the python version
+* Clone the repo
+* Optionally: Setup a python [virtualenv](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/)
+* Install dependencies via the pyhton package manager pip: `$ pip install -r requirements.txt`
+* To run the script (with all the same parameters), use: `$ python src/typestrings.py ...`
+
+Feel free to tackle any of the [open issues](https://github.com/kontur/typeface-strings/issues) or suggest a new feature you want to work on. Pull request welcome, just let me know what you are working on.
+
+
 ### Issues
 * Make sure you are supplying the input in a utf8 encoded file
 
