@@ -47,6 +47,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--letter-combinations', help='List of comma-separated n-grams that must be found in matched strings', type=str)
     parser.add_argument('-pb', '--pasteboard', help='Output results to the pasteboard, max 100 results', action='store_true')
     parser.add_argument('-g', '--generate', help='Use the input text to generate a randomized Markov chain based text from which to extract words (and word combinations), provide number of letters to generate. Especially useful in conjunction with -s. Ideally used with a sample text that contains punctuation, so sentences can be extracted for analysis', type=int)
+    parser.add_argument('-sub', '--substitute', help='Pass in a text document with gylph name substitution rules, one per row')
 
     args = parser.parse_args()
 
@@ -121,6 +122,18 @@ if __name__ == '__main__':
     if args.input_force:
         force = args.input_force
 
+    substitution_rules = {}
+    if args.substitute:
+        rules = filehandler.loadTextFile(args.substitute)
+        for line in rules.split("\n"):
+            # skip comments, empty lines, and obvisouly faulty rules
+            if len(line) < 1 or line[:1] == "#" or line.find(":") == -1:
+                continue
+
+            parts = line.split(":")
+            substitution_rules[parts[0]] = parts[1]
+        
+
     inputText = inputText.split()
     inputNumWords = len(inputText)
 
@@ -194,7 +207,7 @@ if __name__ == '__main__':
 
     # calculate the combined advance widths of all possible separate words (no word sequences)
     if not sequence:
-        wordWidths = text.getWordWidths(inputText, kerning, font, glyphs, max_width)
+        wordWidths = text.getWordWidths(inputText, kerning, font, glyphs, substitution_rules, max_width)
         i = i + 20
         progress(40 + (i / l * s), 100, progress_messages['widths'])
 
@@ -208,15 +221,15 @@ if __name__ == '__main__':
 
     else:
         # also consider words sequences for width calculations
-        wordWidths = text.getWordAndSequenceWidths(inputText, kerning, font, glyphs, max_width, min_width)
+        wordWidths = text.getWordAndSequenceWidths(inputText, kerning, font, glyphs, substitution_rules, max_width, min_width)
         results = [index for index, val in wordWidths]
 
     if max_results is not None:
         results = results[0:max_results]
 
     if results:
-        minWordWidth = text.getWordWidth(results[-1], kerning, font, glyphs)
-        maxWordWidth = text.getWordWidth(results[0], kerning, font, glyphs)
+        minWordWidth = text.getWordWidth(results[-1], kerning, font, glyphs, substitution_rules)
+        maxWordWidth = text.getWordWidth(results[0], kerning, font, glyphs, substitution_rules)
 
     if pasteboard:
         pb = ""
@@ -234,6 +247,7 @@ if __name__ == '__main__':
         print('Font %(font)s contained %(glyphs)s glyphs' % { 'font': fontFile, 'glyphs': fontNumGlyphs })
         print('Input %(input)s contained %(words)d words (%(unique)d unique), of which %(valid)d were a match for the supplied font %(font)s' %
               { 'input': args.sample, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique, 'font': args.font })
+
         if len(errorChars) > 0:
             print('For the supplied input, the following characters were missing from the font:')
             # when executed as binary, there is no stdout

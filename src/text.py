@@ -30,12 +30,12 @@ def getGlyphNameFromUnicode(unicode, glyphs):
         return None
 
 
-def getWordWidths(text, kerning, font, glyphs, max_width):
+def getWordWidths(text, kerning, font, glyphs, substitutions, max_width):
     widths = []
     strings = []
 
     for word in text:
-        width = getWordWidth(word, kerning, font, glyphs)
+        width = getWordWidth(word, kerning, font, glyphs, substitutions)
         if max_width is None or (max_width is not None and width < max_width):
             widths.append(width)
             strings.append(word)
@@ -43,7 +43,7 @@ def getWordWidths(text, kerning, font, glyphs, max_width):
     return reversed(sorted(zip(strings, widths), key=lambda x: x[1]))
 
 
-def getWordAndSequenceWidths(text, kerning, font, glyphs, max_width, min_width = 0):
+def getWordAndSequenceWidths(text, kerning, font, glyphs, substitutions, max_width, min_width = 0):
     widths = []
     strings = []
 
@@ -61,7 +61,7 @@ def getWordAndSequenceWidths(text, kerning, font, glyphs, max_width, min_width =
             wordIndex = index + wordOffset
             if len(text) > wordIndex:
                 string += " " + text[index + wordOffset]
-                stringWidth = getWordWidth(string, kerning, font, glyphs)
+                stringWidth = getWordWidth(string, kerning, font, glyphs, substitutions)
 
                 # if the string is not beyond the max_width, iterate further
                 if stringWidth < max_width and stringWidth > min_width:
@@ -80,20 +80,52 @@ def getWordAndSequenceWidths(text, kerning, font, glyphs, max_width, min_width =
     return reversed(sorted(zip(strings, widths), key=lambda x: x[1]))
 
 
-def getWordWidth(word, kerning, font, glyphs):
+def getWordWidth(word, kerning, font, glyphs, substitutions):
     lastLetter = None
+    lastLetterWasSubstitute = False
     wordWidth = 0
+    
+    for index in range( len( word ) ):
+        letter = word[index]
 
-    for letter in word:
+        # see if this letter is a substituted one or an actual letter
+        isSubstitute = False
+
+        # TODO iterate this expensive re-match for each letter
+        for key, sub in substitutions.iteritems():
+            pattern = regex.escape(key)
+            finds = regex.finditer(pattern, word)
+
+            if (finds):
+                for m in finds:
+                    # since there can be several hits, only get the one relevant to this index
+                    if (m.start() > index + 1):
+                        continue
+
+                    isSubstitute = index >= m.start() and index < m.end()
+                    substitute = sub
+
         try:
-            kernValue = kerning[(letter, lastLetter)]
-            glyphName = getGlyphNameFromUnicode(ord(letter), glyphs)
-            wordWidth += font[glyphName].width
-            
+            if isSubstitute:
+                # print "letter ", letter, "is substituted with", substitute
+                kernValue = 0
+                if not lastLetterWasSubstitute:
+                    # TODO make sure this glpyh exists
+                    wordWidth += font[substitute].width
+                    # print "first letter of substitute, added to word width", font[substitute].width
+
+                lastLetter = substitute
+
+            else:
+                kernValue = kerning[(lastLetter, letter)]
+                glyphName = getGlyphNameFromUnicode(ord(letter), glyphs)
+                wordWidth += font[glyphName].width
+                lastLetter = letter
+
             if kernValue is not None:
                 wordWidth += kernValue
             
-            lastLetter = letter
+            lastLetterWasSubstitute = isSubstitute
 
         except KeyError:
             print("KeyError", word, glyphName, letter, ord(letter))
