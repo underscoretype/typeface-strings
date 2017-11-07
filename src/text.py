@@ -60,18 +60,19 @@ def getWordAndSequenceWidths(text, kerning, font, glyphs, max_width, min_width =
             # the text array of words
             wordIndex = index + wordOffset
             if len(text) > wordIndex:
-                string += text[index + wordOffset]
+                string += " " + text[index + wordOffset]
                 stringWidth = getWordWidth(string, kerning, font, glyphs)
 
                 # if the string is not beyond the max_width, iterate further
                 if stringWidth < max_width and stringWidth > min_width:
-                    wordOffset += 1
                     widths.append(stringWidth)
                     strings.append(string)
 
                     # finally, add a space, so added next words have a space inbetween
                     # which also gets added to their computed width
                     string += " "
+
+                wordOffset += 1
             else:
                 # if the word index is out of bound, break from the while loop
                 stringWidth = max_width
