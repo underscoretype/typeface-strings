@@ -30,7 +30,7 @@ def progress(count, total, suffix=''):
 
 if __name__ == '__main__':
 
-    version = "0.1.0"
+    version = "0.1.2"
 
     parser = argparse.ArgumentParser()
     parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)
@@ -121,8 +121,16 @@ if __name__ == '__main__':
     force = []
     if args.input_force:
         force = args.input_force
+        
+
+    inputText = inputText.split()
+    inputNumWords = len(inputText)
+
+    # open the ufo font file with Robofab, or exit on failure
+    font = filehandler.loadUfoFont(fontFile)
 
     substitution_rules = {}
+    substitution_ignored = []
     if args.substitute:
         rules = filehandler.loadTextFile(args.substitute)
         for line in rules.split("\n"):
@@ -131,15 +139,14 @@ if __name__ == '__main__':
                 continue
 
             parts = line.split(":")
-            substitution_rules[parts[0]] = parts[1]
-        
 
-    inputText = inputText.split()
-    inputNumWords = len(inputText)
-
-    # open the ufo font file with Robofab, or exit on failure
-    font = filehandler.loadUfoFont(fontFile)
+            if parts[1] in font:
+                substitution_rules[parts[0]] = parts[1]
+            else:
+                substitution_ignored.append(parts[1])
+                
     
+
     # generate a list of all unicodes defined in the font
     glyphs = {}
     i = 0.0
@@ -244,9 +251,13 @@ if __name__ == '__main__':
     progress(100, 100)
 
     if verbose:
-        print('Font %(font)s contained %(glyphs)s glyphs' % { 'font': fontFile, 'glyphs': fontNumGlyphs })
+        print('Font %(font)s contained %(glyphs)s glyphs, %(unicodes)s with assigned unicodes' % { 'font': fontFile, 'glyphs': len(font), 'unicodes': fontNumGlyphs })
         print('Input %(input)s contained %(words)d words (%(unique)d unique), of which %(valid)d were a match for the supplied font %(font)s' %
               { 'input': args.sample, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique, 'font': args.font })
+
+        if len(substitution_ignored) > 0:
+            print('The following substitutions were ignored, because the inut font contained no such glyphs:')
+            print substitution_ignored
 
         if len(errorChars) > 0:
             print('For the supplied input, the following characters were missing from the font:')

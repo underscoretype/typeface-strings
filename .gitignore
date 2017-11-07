@@ -1,4 +1,5 @@
 *.txt
+!substitution-examples.txt
 !requirements.txt
 *.ufo
 *.glyphs

@@ -1,4 +1,4 @@
-# TypeStrings
+# TypeStrings (v0.1.2)
 
 A simple CLI tool for generating sample strings from a UFO file and dictionary input.
 
@@ -63,6 +63,10 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 
 *Uses the input text to generate a new text of 500 characters based on Markov chains (somewhat sensible and looking **like** the input language, but not grammatically correct), then searches the 10 best results for target width of 15000 units*. Note that only the -s parameter allows for combining word combinations.
 
+`$ typestring myfont.ufo samplestrings.txt -sub substitution-examples.txt`
+
+*Will apply all substitutions from the text file before calculating widths. This allows you to simulate OpenType features and how they affect the outcome length.*
+
 ## Available parameters
 
 * `first parameter`: Path to UFO file
@@ -78,6 +82,7 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 * `-s` `--word-sequence`: Allow combinations of several words from the source to match a given width -w'
 * `-c` `--letter-combinations`: List of comma-separated n-grams that must be found in matched strings
 * `-g` `--generate`: Use the input text to generate a randomized Markov chain based text from which to extract words (and word combinations), provide number of letters to generate. Especially useful in conjunction with -s. Ideally used with a sample text that contains punctuation, so sentences can be extracted for analysis
+* `-sub` `--substitute`: Use a text document that contains substitution rules to apply before calculating word lengths (see [substitution-examples.txt](substitution-examples.txt) for more info)
 * `-v` `--verbose`: Output verbose information of the generation process
 
 ## Example dictionaries

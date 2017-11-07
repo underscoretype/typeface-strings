@@ -1,0 +1,19 @@
+# Sample substitution rules to use with typestrings
+# 
+# Lines beginning with # are ignored, empty lines are ignored
+#
+# Define substitutions on the left of the colon, which 
+# will be replaced with the glpyhs right of the colon:
+# 
+#  - The left side is a unicode string to be matched in the text
+#  - The right side is a glyphname to be found in the UFO file
+#  - One rule per line
+#  - If a left side string is not found, the rule is ignored
+#  - If a right side glyphname is not found in the ufo, the rule
+#    is ignored (use --verbose to output any not found glyphs)
+
+B=A
+AE:AE
+1/2:onehalf
+fl:fl
+ffl:f_f_l.liga
