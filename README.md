@@ -1,4 +1,4 @@
-# TypeStrings (v0.1.2)
+# TypeStrings (v0.1.3)
 
 A simple CLI tool for generating sample strings from a UFO file and dictionary input.
 
@@ -52,6 +52,12 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 `$ typestring myfont.ufo samplesstrings.txt -s -w 5000`
 
 *The -s flag (only available in conjunction with at least a -w parameter) will allow you to also match word combination or partial sentences. Note that this works best if your text sample is a natural text, not a dictionary*
+
+**Case to uppercase or lowercase**
+
+`$ typestrings myfont.ufo lowercase-samplestrings.txt -uc`
+
+*The -uc flag transforms all words to uppercase (or -lc for lowercase, respectively) before doing any calculations*
  
 **Retrieve all words that made up of the passed in characters**
   
@@ -59,9 +65,13 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 
 *Returns words like `käännös` or `Bacon` that were made up entirely of crossreferenced characters (assuming they were in input as well as defined in the font). Note that this is quite a restrictive filter and can often result in zero matches if too many characters are passed in or the sample text is small.*
 
+**Generate text from input text**
+
 `$ typestring myfont.ufo samplestrings.txt -g 500 -s -w 15000 -r 10`
 
 *Uses the input text to generate a new text of 500 characters based on Markov chains (somewhat sensible and looking **like** the input language, but not grammatically correct), then searches the 10 best results for target width of 15000 units*. Note that only the -s parameter allows for combining word combinations.
+
+**Substitute glyphs from text**
 
 `$ typestring myfont.ufo samplestrings.txt -sub substitution-examples.txt`
 
@@ -78,6 +88,8 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 * `-pb` `--pasteboard`: Copy the results to the pasteboard instead of a file. Simply `cmd + v` to paste the results (automatically limited to max 100 results)
 * `-p` `--filter-punctuation`: Remove any punctuation marks from the input word dictionary
 * `-n` `--filter-numbers`: Remove any numbers from the input word dictionary
+* `-uc` `--upper-case`: Transform the input text to uppercase
+* `-lc` `--lower-case`: Transform the input text to lowercase
 * `-f` `--input-force`: Force filtering to words that only contain all of the passed in characters
 * `-s` `--word-sequence`: Allow combinations of several words from the source to match a given width -w'
 * `-c` `--letter-combinations`: List of comma-separated n-grams that must be found in matched strings
@@ -115,6 +127,6 @@ Feel free to tackle any of the [open issues](https://github.com/kontur/typeface-
 * Support inputting .otf files
 * Support inputting .ttf files
 * Algorithm to pick words for maximal diverse character selection when used with `-m`
-* Option to cast the input to UPPERCASE, lowercase, Mixedcase words
+* Option to cast the input to ~~UPPERCASE, lowercase,~~ Mixedcase words
 
 Contribution in form of feature requests, bug reports and pull requests most welcome. Let me know what's on your mind ;)

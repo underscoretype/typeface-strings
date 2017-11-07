@@ -30,12 +30,12 @@ def progress(count, total, suffix=''):
 
 if __name__ == '__main__':
 
-    version = "0.1.2"
+    version = "0.1.3"
 
     parser = argparse.ArgumentParser()
     parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)
     parser.add_argument('sample', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
-    parser.add_argument('-o', '--output', help='Name for the output file')
+    parser.add_argument('-o', '--output', help='Name for the output file', type=str)
     parser.add_argument('-w', '--max-width', help='Desired maximumg word width', type=int)
     parser.add_argument('-m', '--min-width', help='Minimum word width', type=int)
     parser.add_argument('-r', '--results', help='Maximum number of result to be retrieved', type=int)
@@ -47,7 +47,9 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--letter-combinations', help='List of comma-separated n-grams that must be found in matched strings', type=str)
     parser.add_argument('-pb', '--pasteboard', help='Output results to the pasteboard, max 100 results', action='store_true')
     parser.add_argument('-g', '--generate', help='Use the input text to generate a randomized Markov chain based text from which to extract words (and word combinations), provide number of letters to generate. Especially useful in conjunction with -s. Ideally used with a sample text that contains punctuation, so sentences can be extracted for analysis', type=int)
-    parser.add_argument('-sub', '--substitute', help='Pass in a text document with gylph name substitution rules, one per row')
+    parser.add_argument('-sub', '--substitute', help='Pass in a text document with gylph name substitution rules, one per row', type=str)
+    parser.add_argument('-uc', '--upper-case', help='Transform the input text to uppercase before calculations', action='store_true')
+    parser.add_argument('-lc', '--lower-case', help='Transform the input text to lowercase before calculations', action='store_true')
 
     args = parser.parse_args()
 
@@ -94,6 +96,12 @@ if __name__ == '__main__':
 
     # check and load the input text file, or exit on failure
     inputText = filehandler.loadTextFile(sample)    
+
+    if args.upper_case:
+        inputText = inputText.upper()
+
+    if args.lower_case:
+        inputText = inputText.lower()
     
     # generate a markov chain based text from the input
     if args.generate and args.generate > 0:
