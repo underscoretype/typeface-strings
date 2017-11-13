@@ -60,7 +60,7 @@ def getWordAndSequenceWidths(text, kerning, font, glyphs, substitutions, max_wid
             # the text array of words
             wordIndex = index + wordOffset
             if len(text) > wordIndex:
-                
+
                 if string != "":
                     string += " "
 
@@ -68,7 +68,7 @@ def getWordAndSequenceWidths(text, kerning, font, glyphs, substitutions, max_wid
                 stringWidth = getWordWidth(string, kerning, font, glyphs, substitutions)
 
                 # if the string is not beyond the max_width, iterate further
-                if stringWidth < max_width and stringWidth > min_width:
+                if (stringWidth < max_width and stringWidth > min_width) and string not in strings:
                     widths.append(stringWidth)
                     strings.append(string)
 
@@ -76,7 +76,8 @@ def getWordAndSequenceWidths(text, kerning, font, glyphs, substitutions, max_wid
             else:
                 # if the word index is out of bound, break from the while loop
                 stringWidth = max_width
-    
+
+
     return reversed(sorted(zip(strings, widths), key=lambda x: x[1]))
 
 
