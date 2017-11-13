@@ -121,6 +121,7 @@ Feel free to tackle any of the [open issues](https://github.com/kontur/typeface-
 
 ### Issues
 * Make sure you are supplying the input in a utf8 encoded file
+* Use sense with your input; some options (huge input dictionary, no limiting factors) can create vast amounts of possible text combinations and may grind the script down to a halt, if possible use -m and -w as well as -r options to limit the possible search results
 
 ### Planned features
 * Support inputting .glyph files, output a file for each master
