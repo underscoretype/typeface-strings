@@ -12,7 +12,6 @@
 #  - If a right side glyphname is not found in the ufo, the rule
 #    is ignored (use --verbose to output any not found glyphs)
 
-B=A
 AE:AE
 1/2:onehalf
 fl:fl
