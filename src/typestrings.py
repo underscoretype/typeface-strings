@@ -64,7 +64,7 @@ if __name__ == '__main__':
     fontFile = args.font
 
     if sample is None or fontFile is None:
-        exit(error_messages['input'])
+        sys.exit(error_messages['input'])
 
     progress(0, 100, progress_messages['start'])
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     min_width = args.min_width
     if max_width is not None and min_width is not None:
         if min_width >= max_width:
-            exit(error_messages['min_max'])
+            sys.exit(error_messages['min_max'])
 
     max_results = args.results
     verbose = args.verbose
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         combinations = combinations.split(',')
 
     if sequence and not max_width:
-        exit(error_messages['sequence_requires_width'])
+        sys.exit(error_messages['sequence_requires_width'])
 
     # check and load the input text file, or exit on failure
     inputText = filehandler.loadTextFile(sample)    
