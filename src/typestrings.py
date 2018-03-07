@@ -50,6 +50,7 @@ if __name__ == '__main__':
     parser.add_argument('-sub', '--substitute', help='Pass in a text document with gylph name substitution rules, one per row', type=str)
     parser.add_argument('-uc', '--upper-case', help='Transform the input text to uppercase before calculations', action='store_true')
     parser.add_argument('-lc', '--lower-case', help='Transform the input text to lowercase before calculations', action='store_true')
+    parser.add_argument('-tc', '--title-case', help='Transform the input text to titlecase before calculations', action='store_true')
 
     args = parser.parse_args()
 
@@ -102,6 +103,9 @@ if __name__ == '__main__':
 
     if args.lower_case:
         inputText = inputText.lower()
+
+    if args.title_case:
+        inputText = inputText.title()
     
     # generate a markov chain based text from the input
     if args.generate and args.generate > 0:

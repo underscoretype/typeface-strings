@@ -58,6 +58,12 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 `$ typestrings myfont.ufo lowercase-samplestrings.txt -uc`
 
 *The -uc flag transforms all words to uppercase (or -lc for lowercase, respectively) before doing any calculations*
+
+**Case to titlecase**
+
+`$ typestrings myfont.ufo titlecase-samplestrings.txt -tc`
+
+*The -tc flag transforms all words to titlecase before doing any calculations*
  
 **Retrieve all words that made up of the passed in characters**
   
@@ -90,6 +96,7 @@ Make sure the file is executable, chmod to executable for your unix user if nece
 * `-n` `--filter-numbers`: Remove any numbers from the input word dictionary
 * `-uc` `--upper-case`: Transform the input text to uppercase
 * `-lc` `--lower-case`: Transform the input text to lowercase
+* `-tc` `--title-case`: Transform the input text to titlecase
 * `-f` `--input-force`: Force filtering to words that only contain all of the passed in characters
 * `-s` `--word-sequence`: Allow combinations of several words from the source to match a given width -w'
 * `-c` `--letter-combinations`: List of comma-separated n-grams that must be found in matched strings
