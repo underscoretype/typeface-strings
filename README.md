@@ -137,4 +137,9 @@ Feel free to tackle any of the [open issues](https://github.com/kontur/typeface-
 * Algorithm to pick words for maximal diverse character selection when used with `-m`
 * Option to cast the input to ~~UPPERCASE, lowercase,~~ Mixedcase words
 
+### Contributors
+* [Johannes Neumeier](https://github.com/kontur) ([Underscore](https://underscoretype.com))
+* Toni Hurme ([Hurme Design](https://www.hurmedesign.com))
+* [Teddy Derkert](https://github.com/tderkert) ([Teddy Derkert](http://www.teddyderkert.se))
+
 Contribution in form of feature requests, bug reports and pull requests most welcome. Let me know what's on your mind ;)
