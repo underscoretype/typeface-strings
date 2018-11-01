@@ -1,4 +1,4 @@
-# TypeStrings (v0.1.3)
+# TypeStrings (v0.1.7)
 
 A simple CLI tool for generating sample strings from a UFO file and dictionary input.
 
