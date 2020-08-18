@@ -2,7 +2,7 @@
 import argparse, operator, codecs, os, ntpath, sys, logging
 
 # dependency modules
-import clipboard
+import pyperclip as clipboard
 from pymarkovchain import MarkovChain
 
 # local modules
@@ -30,7 +30,7 @@ def progress(count, total, suffix=''):
 
 if __name__ == '__main__':
 
-    version = "0.1.7"
+    version = "0.2.0"
 
     parser = argparse.ArgumentParser()
     parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--filter-punctuation', help='Remove any punctuation marks from the input', action='store_true')
     parser.add_argument('-n', '--filter-numbers', help='Remove any numbers from the input', action='store_true')
     parser.add_argument('-v', '--verbose', help='Print verbose processing information', action='store_true')
-    parser.add_argument('-f', '--input-force', help='Limit the matches to words entirely made up of only these characters', type=lambda s: unicode(s, 'utf8'))
+    parser.add_argument('-f', '--input-force', help='Limit the matches to words entirely made up of only these characters', type=str)
     parser.add_argument('-s', '--word-sequence', help='Allow combinations of several words from the source to match a given width -w', action='store_true')
     parser.add_argument('-c', '--letter-combinations', help='List of comma-separated n-grams that must be found in matched strings', type=str)
     parser.add_argument('-pb', '--pasteboard', help='Output results to the pasteboard, max 100 results', action='store_true')
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.verbose:
-        print("Type Strings script version: " + version)
+        print(("Type Strings script version: " + version))
 
     i = 0
     l = 0
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     l = len(inputText) + 1
     s = 20
 
-    unicodes = glyphs.keys()
+    unicodes = list(glyphs.keys())
     for word in inputText:
         i = i + 1
         progress(20 + (i / l * s), 100, progress_messages['words'])
@@ -213,10 +213,8 @@ if __name__ == '__main__':
 
     inputNumValidWords = len(inputText)
 
-    # extract kerning and apply kerning classes, if possible
+    # Use kerning.find( (a, b) ) to get a kern value (with classes applied)
     kerning = font.kerning
-    if kerning is not None and font.groups is not None:
-        kerning.explodeClasses(font.groups, font.groups)
 
     i = 0.0
     l = len(inputText) + 1
@@ -263,13 +261,13 @@ if __name__ == '__main__':
     progress(100, 100)
 
     if verbose:
-        print('Font %(font)s contained %(glyphs)s glyphs, %(unicodes)s with assigned unicodes' % { 'font': fontFile, 'glyphs': len(font), 'unicodes': fontNumGlyphs })
-        print('Input %(input)s contained %(words)d words (%(unique)d unique), of which %(valid)d were a match for the supplied font %(font)s' %
-              { 'input': args.sample, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique, 'font': args.font })
+        print(('Font %(font)s contained %(glyphs)s glyphs, %(unicodes)s with assigned unicodes' % { 'font': fontFile, 'glyphs': len(font), 'unicodes': fontNumGlyphs }))
+        print(('Input %(input)s contained %(words)d words (%(unique)d unique), of which %(valid)d were a match for the supplied font %(font)s' %
+              { 'input': args.sample, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique, 'font': args.font }))
 
         if len(substitution_ignored) > 0:
             print('The following substitutions were ignored, because the inut font contained no such glyphs:')
-            print substitution_ignored
+            print(substitution_ignored)
 
         if len(errorChars) > 0:
             print('For the supplied input, the following characters were missing from the font:')
@@ -279,10 +277,10 @@ if __name__ == '__main__':
             else:
                 print(errorChars)
         if max_width is not None:
-            print('For the supplied target width %(width)d the found results ranged in width from %(min)d to %(max)d' %
-                  { 'width': max_width, 'min': minWordWidth, 'max': maxWordWidth })
+            print(('For the supplied target width %(width)d the found results ranged in width from %(min)d to %(max)d' %
+                  { 'width': max_width, 'min': minWordWidth, 'max': maxWordWidth }))
 
     if pasteboard:
-        print('%(matches)s matching words have been copied to your pasteboard. Done.' % { 'matches': min(len(results), 100) })
+        print(('%(matches)s matching words have been copied to your pasteboard. Done.' % { 'matches': min(len(results), 100) }))
     else:
-        print('%(matches)s matching words written to %(output)s. Done.' % { 'matches': len(results), 'output': output })
+        print(('%(matches)s matching words written to %(output)s. Done.' % { 'matches': len(results), 'output': output }))

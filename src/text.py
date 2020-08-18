@@ -2,15 +2,16 @@
 import operator
 
 # dependency modules
-import regex
+# import regex
+import re
 
 
 def removePunctuation(text):
-    return regex.sub(ur"\p{P}+", "", text)
+    return re.sub(r"\p{P}+", "", text)
 
 
 def removeNumbers(text):
-    return regex.sub(ur"\d+", "", text)
+    return re.sub(r"\d+", "", text)
 
 
 def filterByCombinations(strings, combinations):
@@ -22,11 +23,11 @@ def filterByCombinations(strings, combinations):
     return filtered
 
 
-def getGlyphNameFromUnicode(unicode, glyphs):
+def getGlyphNameFromUnicode(str, glyphs):
     try:
-        return glyphs[unicode]
+        return glyphs[str]
     except KeyError:
-        print("getGlyphNameFromUnicode KeyError for", unicode)
+        print(("getGlyphNameFromUnicode KeyError for", str))
         return None
 
 
@@ -91,11 +92,12 @@ def getWordWidth(word, kerning, font, glyphs, substitutions):
 
         # see if this letter is a substituted one or an actual letter
         isSubstitute = False
+        glyphName = ""
 
         # TODO iterate this expensive re-match for each letter
-        for key, sub in substitutions.iteritems():
-            pattern = regex.escape(key)
-            finds = regex.finditer(pattern, word)
+        for key, sub in substitutions.items():
+            pattern = re.escape(key)
+            finds = re.finditer(pattern, word)
 
             if (finds):
                 for m in finds:
@@ -108,7 +110,6 @@ def getWordWidth(word, kerning, font, glyphs, substitutions):
 
         try:
             if isSubstitute:
-                # print "letter ", letter, "is substituted with", substitute
                 kernValue = 0
                 if not lastLetterWasSubstitute:
                     # TODO make sure this glpyh exists
@@ -118,7 +119,12 @@ def getWordWidth(word, kerning, font, glyphs, substitutions):
                 lastLetter = substitute
 
             else:
-                kernValue = kerning[(lastLetter, letter)]
+                if not lastLetter or not letter:
+                    lastLetter = letter
+                    continue
+                
+                kernValue = kerning.find((lastLetter, letter))
+
                 glyphName = getGlyphNameFromUnicode(ord(letter), glyphs)
                 wordWidth += font[glyphName].width
                 lastLetter = letter
@@ -128,8 +134,8 @@ def getWordWidth(word, kerning, font, glyphs, substitutions):
             
             lastLetterWasSubstitute = isSubstitute
 
-        except KeyError:
-            print("KeyError", word, glyphName, letter, ord(letter))
+        except KeyError as e:
+            print(("KeyError", word, glyphName, letter, ord(letter)))
             continue
 
     return wordWidth
@@ -142,6 +148,6 @@ def removeDuplicates(text):
     keys = {}
     for e in text:
         keys[e] = 1
-    text = keys.keys()
+    text = list(keys.keys())
     return text
 

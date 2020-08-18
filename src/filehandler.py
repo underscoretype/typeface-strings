@@ -2,7 +2,7 @@
 import os, sys
 
 # dependency modules
-from robofab.world import RFont
+from defcon import Font
 
 # local modules
 from messages import error_messages
@@ -12,14 +12,14 @@ def loadUfoFont(fontFile):
     if not file_exists(fontFile):
         sys.exit(error_messages['font_not_found'] + ' Supplied: ' + fontFile)
     else:
-        return RFont(fontFile)
+        return Font(fontFile)
 
 def loadTextFile(textFile):
     if not file_exists(textFile):
         sys.exit(error_messages['textfile_not_found'] + ' Supplied: ' + textFile)
     else:
-        inputFile = open(textFile, 'r')
-        inputText = inputFile.read().decode("utf8")
+        inputFile = open(textFile, 'r', encoding="utf8")
+        inputText = inputFile.read()
         return inputText
 
 def file_exists(file_path):
