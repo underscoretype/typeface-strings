@@ -1,9 +1,4 @@
-# built-in modules
-import operator
-
-# dependency modules
-# import regex
-import re
+import regex as re
 
 
 def removePunctuation(text):
@@ -44,16 +39,16 @@ def getWordWidths(text, kerning, font, glyphs, substitutions, max_width):
     return reversed(sorted(zip(strings, widths), key=lambda x: x[1]))
 
 
-def getWordAndSequenceWidths(text, kerning, font, glyphs, substitutions, max_width, min_width = 0):
+def getWordAndSequenceWidths(text, kerning, font, glyphs, substitutions, max_width, min_width=0):
     widths = []
     strings = []
 
-    # for every word, check its width, and if it's below max_width, also it plus 
+    # for every word, check its width, and if it's below max_width, also it plus
     # consequtive words, until it is over width
     for index, word in enumerate(text):
         string = ""
-        stringWidth = 0;
-        wordOffset = 0;
+        stringWidth = 0
+        wordOffset = 0
 
         while stringWidth < max_width:
 
@@ -66,7 +61,8 @@ def getWordAndSequenceWidths(text, kerning, font, glyphs, substitutions, max_wid
                     string += " "
 
                 string += text[index + wordOffset]
-                stringWidth = getWordWidth(string, kerning, font, glyphs, substitutions)
+                stringWidth = getWordWidth(
+                    string, kerning, font, glyphs, substitutions)
 
                 # if the string is not beyond the max_width, iterate further
                 if (stringWidth < max_width and stringWidth > min_width) and string not in strings:
@@ -78,7 +74,6 @@ def getWordAndSequenceWidths(text, kerning, font, glyphs, substitutions, max_wid
                 # if the word index is out of bound, break from the while loop
                 stringWidth = max_width
 
-
     return reversed(sorted(zip(strings, widths), key=lambda x: x[1]))
 
 
@@ -86,8 +81,8 @@ def getWordWidth(word, kerning, font, glyphs, substitutions):
     lastLetter = None
     lastLetterWasSubstitute = False
     wordWidth = 0
-    
-    for index in range( len( word ) ):
+
+    for index in range(len(word)):
         letter = word[index]
 
         # see if this letter is a substituted one or an actual letter
@@ -122,7 +117,7 @@ def getWordWidth(word, kerning, font, glyphs, substitutions):
                 if not lastLetter or not letter:
                     lastLetter = letter
                     continue
-                
+
                 kernValue = kerning.find((lastLetter, letter))
 
                 glyphName = getGlyphNameFromUnicode(ord(letter), glyphs)
@@ -131,7 +126,7 @@ def getWordWidth(word, kerning, font, glyphs, substitutions):
 
             if kernValue is not None:
                 wordWidth += kernValue
-            
+
             lastLetterWasSubstitute = isSubstitute
 
         except KeyError as e:
@@ -150,4 +145,3 @@ def removeDuplicates(text):
         keys[e] = 1
     text = list(keys.keys())
     return text
-

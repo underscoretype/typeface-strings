@@ -30,7 +30,7 @@ def progress(count, total, suffix=''):
 
 if __name__ == '__main__':
 
-    version = "0.2.0"
+    version = "0.2.1"
 
     parser = argparse.ArgumentParser()
     parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)

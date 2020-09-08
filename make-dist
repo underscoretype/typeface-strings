@@ -1,1 +1,1 @@
-pyinstaller -F "src/typestrings.py" -p "venv/lib"
+pyinstaller -F --log-level INFO --clean src/typestrings.py
