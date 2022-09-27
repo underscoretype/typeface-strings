@@ -1,12 +1,18 @@
 # built-in modules
-import argparse, operator, codecs, os, ntpath, sys, logging
+import argparse
+import codecs
+import os
+import ntpath
+import sys
+import logging
 
 # dependency modules
 import pyperclip as clipboard
 from pymarkovchain import MarkovChain
 
 # local modules
-import filehandler, text
+import filehandler
+import text
 from messages import error_messages, progress_messages
 
 
@@ -30,27 +36,63 @@ def progress(count, total, suffix=''):
 
 if __name__ == '__main__':
 
-    version = "0.2.1"
+    version = "0.3.0"
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('font', metavar='font.ufo', help='Font file', type=str)
-    parser.add_argument('sample', metavar='textsample.txt', help='Input file in to extract possible strings from', type=str)
-    parser.add_argument('-o', '--output', help='Name for the output file', type=str)
-    parser.add_argument('-w', '--max-width', help='Desired maximumg word width', type=int)
-    parser.add_argument('-m', '--min-width', help='Minimum word width', type=int)
-    parser.add_argument('-r', '--results', help='Maximum number of result to be retrieved', type=int)
-    parser.add_argument('-p', '--filter-punctuation', help='Remove any punctuation marks from the input', action='store_true')
-    parser.add_argument('-n', '--filter-numbers', help='Remove any numbers from the input', action='store_true')
-    parser.add_argument('-v', '--verbose', help='Print verbose processing information', action='store_true')
-    parser.add_argument('-f', '--input-force', help='Limit the matches to words entirely made up of only these characters', type=str)
-    parser.add_argument('-s', '--word-sequence', help='Allow combinations of several words from the source to match a given width -w', action='store_true')
-    parser.add_argument('-c', '--letter-combinations', help='List of comma-separated n-grams that must be found in matched strings', type=str)
-    parser.add_argument('-pb', '--pasteboard', help='Output results to the pasteboard, max 100 results', action='store_true')
-    parser.add_argument('-g', '--generate', help='Use the input text to generate a randomized Markov chain based text from which to extract words (and word combinations), provide number of letters to generate. Especially useful in conjunction with -s. Ideally used with a sample text that contains punctuation, so sentences can be extracted for analysis', type=int)
-    parser.add_argument('-sub', '--substitute', help='Pass in a text document with gylph name substitution rules, one per row', type=str)
-    parser.add_argument('-uc', '--upper-case', help='Transform the input text to uppercase before calculations', action='store_true')
-    parser.add_argument('-lc', '--lower-case', help='Transform the input text to lowercase before calculations', action='store_true')
-    parser.add_argument('-tc', '--title-case', help='Transform the input text to titlecase before calculations', action='store_true')
+    parser.add_argument('font', metavar='font.ufo',
+                        help='Font file',
+                        type=str)
+    parser.add_argument('sample', metavar='textsample.txt',
+                        help='Input file in to extract possible strings from',
+                        type=str)
+    parser.add_argument('-o', '--output',
+                        help='Name for the output file',
+                        type=str)
+    parser.add_argument('-w', '--max-width',
+                        help='Desired maximumg word width',
+                        type=int)
+    parser.add_argument('-m', '--min-width',
+                        help='Minimum word width',
+                        type=int)
+    parser.add_argument('-r', '--results',
+                        help='Maximum number of result to be retrieved',
+                        type=int)
+    parser.add_argument('-p', '--filter-punctuation',
+                        help='Remove any punctuation marks from the input',
+                        action='store_true')
+    parser.add_argument('-n', '--filter-numbers',
+                        help='Remove any numbers from the input',
+                        action='store_true')
+    parser.add_argument('-v', '--verbose',
+                        help='Print verbose processing information',
+                        action='store_true')
+    parser.add_argument('-f', '--input-force',
+                        help='Limit the matches to words entirely made up of only these characters',  # noqa
+                        type=str)
+    parser.add_argument('-s', '--word-sequence',
+                        help='Allow combinations of several words from the source to match a given width -w',  # noqa
+                        action='store_true')
+    parser.add_argument('-c', '--letter-combinations',
+                        help='List of comma-separated n-grams that must be found in matched strings',  # noqa
+                        type=str)
+    parser.add_argument('-pb', '--pasteboard',
+                        help='Output results to the pasteboard, max 100 results',  # noqa
+                        action='store_true')
+    parser.add_argument('-g', '--generate',
+                        help='Use the input text to generate a randomized Markov chain based text from which to extract words (and word combinations), provide number of letters to generate. Especially useful in conjunction with -s. Ideally used with a sample text that contains punctuation, so sentences can be extracted for analysis',  # noqa
+                        type=int)
+    parser.add_argument('-sub', '--substitute',
+                        help='Pass in a text document with gylph name substitution rules, one per row',  # noqa
+                        type=str)
+    parser.add_argument('-uc', '--upper-case',
+                        help='Transform the input text to uppercase before calculations',  # noqa
+                        action='store_true')
+    parser.add_argument('-lc', '--lower-case',
+                        help='Transform the input text to lowercase before calculations',  # noqa
+                        action='store_true')
+    parser.add_argument('-tc', '--title-case',
+                        help='Transform the input text to titlecase before calculations',  # noqa
+                        action='store_true')
 
     args = parser.parse_args()
 
@@ -75,7 +117,8 @@ if __name__ == '__main__':
     # if no output file is provided, roll a default
     output = args.output
     if output is None:
-        output = path_leaf(fontPath) + "_" + path_leaf(inputPath) + "_output.txt"
+        output = path_leaf(fontPath) + "_" + \
+            path_leaf(inputPath) + "_output.txt"
 
     # parse a target width if one was supplied
     max_width = args.max_width
@@ -96,7 +139,7 @@ if __name__ == '__main__':
         sys.exit(error_messages['sequence_requires_width'])
 
     # check and load the input text file, or exit on failure
-    inputText = filehandler.loadTextFile(sample)    
+    inputText = filehandler.loadTextFile(sample)
 
     if args.upper_case:
         inputText = inputText.upper()
@@ -106,7 +149,7 @@ if __name__ == '__main__':
 
     if args.title_case:
         inputText = inputText.title()
-    
+
     # generate a markov chain based text from the input
     if args.generate and args.generate > 0:
         # disable error message about on-the-fly database
@@ -119,7 +162,7 @@ if __name__ == '__main__':
 
         generatedText = ""
         while len(generatedText) < args.generate:
-            if generatedText is not "":
+            if generatedText != "":
                 generatedText = generatedText + " "
             generatedText = generatedText + mc.generateString()
         inputText = generatedText
@@ -133,7 +176,6 @@ if __name__ == '__main__':
     force = []
     if args.input_force:
         force = args.input_force
-        
 
     inputText = inputText.split()
     inputNumWords = len(inputText)
@@ -156,8 +198,6 @@ if __name__ == '__main__':
                 substitution_rules[parts[0]] = parts[1]
             else:
                 substitution_ignored.append(parts[1])
-                
-    
 
     # generate a list of all unicodes defined in the font
     glyphs = {}
@@ -183,7 +223,6 @@ if __name__ == '__main__':
         inputText = text.removeDuplicates(inputText)
 
     inputNumUnique = len(inputText)
-
 
     i = 0.0
     l = len(inputText) + 1
@@ -224,7 +263,8 @@ if __name__ == '__main__':
 
     # calculate the combined advance widths of all possible separate words (no word sequences)
     if not sequence:
-        wordWidths = text.getWordWidths(inputText, kerning, font, glyphs, substitution_rules, max_width)
+        wordWidths = text.getWordWidths(
+            inputText, kerning, font, glyphs, substitution_rules, max_width, min_width)
         i = i + 20
         progress(40 + (i / l * s), 100, progress_messages['widths'])
 
@@ -232,21 +272,28 @@ if __name__ == '__main__':
 
         if combinations:
             results = text.filterByCombinations(results, combinations)
-        
+
         i = i + 1
         progress(60 + (i / l * s), 100, progress_messages['matches'])
 
     else:
         # also consider words sequences for width calculations
-        wordWidths = text.getWordAndSequenceWidths(inputText, kerning, font, glyphs, substitution_rules, max_width, min_width)
+        wordWidths = text.getWordAndSequenceWidths(inputText, kerning, font,
+                                                   glyphs, substitution_rules,
+                                                   max_width, min_width)
         results = [index for index, val in wordWidths]
 
     if max_results is not None:
         results = results[0:max_results]
 
     if results:
-        minWordWidth = text.getWordWidth(results[-1], kerning, font, glyphs, substitution_rules)
-        maxWordWidth = text.getWordWidth(results[0], kerning, font, glyphs, substitution_rules)
+        minWordWidth = text.getWordWidth(
+            results[-1], kerning, font, glyphs, substitution_rules)
+        maxWordWidth = text.getWordWidth(
+            results[0], kerning, font, glyphs, substitution_rules)
+    else:
+        minWordWidth = "-"
+        maxWordWidth = "-"
 
     if pasteboard:
         pb = ""
@@ -257,30 +304,35 @@ if __name__ == '__main__':
         outputFile = codecs.open(output, "w", "utf8")
         outputFile.write("\n".join(results))
 
-
     progress(100, 100)
 
     if verbose:
-        print(('Font %(font)s contained %(glyphs)s glyphs, %(unicodes)s with assigned unicodes' % { 'font': fontFile, 'glyphs': len(font), 'unicodes': fontNumGlyphs }))
-        print(('Input %(input)s contained %(words)d words (%(unique)d unique), of which %(valid)d were a match for the supplied font %(font)s' %
-              { 'input': args.sample, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique, 'font': args.font }))
+        print(('Font %(font)s contained %(glyphs)s glyphs, %(unicodes)s with assigned unicodes' % {
+              'font': fontFile, 'glyphs': len(font), 'unicodes': fontNumGlyphs}))
+        print(('Input %(input)s contained %(words)d words (%(unique)d unique), of which %(valid)d were a possible to spell with the supplied font %(font)s' %
+              {'input': args.sample, 'words': inputNumWords, 'valid': inputNumValidWords, 'unique': inputNumUnique, 'font': args.font}))
 
         if len(substitution_ignored) > 0:
-            print('The following substitutions were ignored, because the inut font contained no such glyphs:')
+            print(
+                'The following substitutions were ignored, because the inut font contained no such glyphs:')
             print(substitution_ignored)
 
         if len(errorChars) > 0:
-            print('For the supplied input, the following characters were missing from the font:')
+            print(
+                'For the supplied input, the following characters were missing from the font:')
             # when executed as binary, there is no stdout
             if sys.stderr.encoding is not None:
-                (repr([x.encode(sys.stdout.encoding) for x in errorChars]).decode('string-escape'))
+                (repr([x.encode(sys.stdout.encoding)
+                 for x in errorChars]).decode('string-escape'))
             else:
                 print(errorChars)
         if max_width is not None:
-            print(('For the supplied target width %(width)d the found results ranged in width from %(min)d to %(max)d' %
-                  { 'width': max_width, 'min': minWordWidth, 'max': maxWordWidth }))
+            print(('For the supplied target width %(width)d the found results ranged in width from %(min)s to %(max)s' %
+                  {'width': max_width, 'min': str(minWordWidth), 'max': str(maxWordWidth)}))
 
     if pasteboard:
-        print(('%(matches)s matching words have been copied to your pasteboard. Done.' % { 'matches': min(len(results), 100) }))
+        print(('%(matches)s matching words have been copied to your pasteboard. Done.' % {
+              'matches': min(len(results), 100)}))
     else:
-        print(('%(matches)s matching words written to %(output)s. Done.' % { 'matches': len(results), 'output': output }))
+        print(('%(matches)s matching words written to %(output)s. Done.' %
+              {'matches': len(results), 'output': output}))

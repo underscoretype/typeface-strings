@@ -1,3 +1,4 @@
+import sys
 import regex as re
 
 
@@ -26,13 +27,15 @@ def getGlyphNameFromUnicode(str, glyphs):
         return None
 
 
-def getWordWidths(text, kerning, font, glyphs, substitutions, max_width):
+def getWordWidths(text, kerning, font, glyphs, substitutions, max_width=sys.maxsize, min_width=0):
     widths = []
     strings = []
+    if not min_width:
+        min_width = 0
 
     for word in text:
         width = getWordWidth(word, kerning, font, glyphs, substitutions)
-        if max_width is None or (max_width is not None and width < max_width):
+        if width < max_width and width > min_width:
             widths.append(width)
             strings.append(word)
 
@@ -114,9 +117,10 @@ def getWordWidth(word, kerning, font, glyphs, substitutions):
                 lastLetter = substitute
 
             else:
-                if not lastLetter or not letter:
-                    lastLetter = letter
+                if not letter:
                     continue
+                if not lastLetter:
+                    lastLetter = letter
 
                 kernValue = kerning.find((lastLetter, letter))
 
