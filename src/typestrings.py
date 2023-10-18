@@ -318,14 +318,13 @@ if __name__ == '__main__':
             print(substitution_ignored)
 
         if len(errorChars) > 0:
+            errorChars = sorted(set(errorChars))
             print(
                 'For the supplied input, the following characters were missing from the font:')
-            # when executed as binary, there is no stdout
-            if sys.stderr.encoding is not None:
-                (repr([x.encode(sys.stdout.encoding)
-                 for x in errorChars]).decode('string-escape'))
-            else:
+            try:
                 print(errorChars)
+            except Exception as e:
+                print(e)
         if max_width is not None:
             print(('For the supplied target width %(width)d the found results ranged in width from %(min)s to %(max)s' %
                   {'width': max_width, 'min': str(minWordWidth), 'max': str(maxWordWidth)}))
