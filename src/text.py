@@ -27,7 +27,9 @@ def getGlyphNameFromUnicode(str, glyphs):
         return None
 
 
-def getWordWidths(text, kerning, font, glyphs, substitutions, max_width=sys.maxsize, min_width=0):
+def getWordWidths(text, kerning, font, glyphs, substitutions, max_width=None, min_width=0):
+    if max_width is None:
+        max_width = sys.maxsize
     widths = []
     strings = []
     if not min_width:
