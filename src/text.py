@@ -122,9 +122,11 @@ def getWordWidth(word, kerning, font, glyphs, substitutions):
                 if not lastLetter:
                     lastLetter = letter
 
-                kernValue = kerning.find((lastLetter, letter))
-
                 glyphName = getGlyphNameFromUnicode(ord(letter), glyphs)
+                firstName = getGlyphNameFromUnicode(ord(lastLetter), glyphs)
+                secondName = glyphName
+
+                kernValue = kerning.find((firstName, secondName))
                 wordWidth += font[glyphName].width
                 lastLetter = letter
 
